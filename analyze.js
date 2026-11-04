@@ -55,7 +55,11 @@ Cite ses propres activités et horaires entre guillemets pour que chaque conseil
         generationConfig: { responseMimeType: 'application/json', thinkingConfig: { thinkingBudget: 0 } }
       })
     });
-    if (!r.ok) return res.status(502).json({ error: 'upstream', status: r.status });
+    if (!r.ok) {
+      let detail = '';
+      try { detail = ((await r.json()).error || {}).message || ''; } catch {}
+      return res.status(502).json({ error: 'upstream', status: `${r.status} ${clip(detail, 120)}`.trim() });
+    }
     const data = await r.json();
     const txt = data.candidates[0].content.parts[0].text.replace(/```json|```/g, '').trim();
     const j = JSON.parse(txt);
