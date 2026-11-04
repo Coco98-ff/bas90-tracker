@@ -3,23 +3,25 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>BAS 90 Tracker</title>
-<meta name="theme-color" content="#0E1F3F">
+<title>Bloc 90 – Suivi du temps</title>
+<meta name="theme-color" content="#3B1D4F">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="BAS 90">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230E1F3F'/%3E%3Ctext x='32' y='42' font-family='Georgia,serif' font-size='28' font-weight='700' text-anchor='middle' fill='%23C9A24B'%3E90%3C/text%3E%3C/svg%3E">
+<meta name="apple-mobile-web-app-title" content="Bloc 90">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="manifest" href="manifest.webmanifest">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
 :root{
-  --navy:#0E1F3F; --navy-2:#1B315C; --ink:#13203A; --muted:#6A7690;
-  --gold:#C9A24B; --gold-soft:#F4EBD3; --mint:#7FD1B9; --mint-deep:#2E8F78;
-  --paper:#FFFFFF; --mist:#F4F6FA; --line:#E1E6EF;
-  --low:#2E8F78; --mid:#C9A24B; --high:#C2503F;
+  --navy:#3B1D4F; --navy-2:#54306E; --ink:#2A1838; --muted:#7A6A86;
+  --gold:#E8A9BC; --gold-soft:#FBEAF0; --mint:#F2C7D4; --mint-deep:#2E8F78;
+  --paper:#FFFFFF; --mist:#F8F4F8; --line:#EADFEA;
+  --low:#2E8F78; --mid:#D9A441; --high:#C2503F;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;background:var(--mist);color:var(--ink);font-family:'Figtree',system-ui,sans-serif}
@@ -29,13 +31,13 @@ h1,h2,h3,.serif{font-family:'Fraunces',Georgia,serif}
 /* Login */
 .login{min-height:100vh;background:var(--navy);color:#fff;padding:calc(env(safe-area-inset-top,0px) + 56px) 28px calc(env(safe-area-inset-bottom,0px) + 32px);display:flex;flex-direction:column}
 .login .mark{font-family:'Fraunces',serif;font-size:76px;line-height:1;color:var(--gold);font-weight:700;letter-spacing:-2px}
-.login h1{font-size:30px;margin:14px 0 6px;font-weight:500}
-.login p{color:#B9C4DB;margin:0 0 36px;line-height:1.5}
-.field{width:100%;padding:16px 18px;border-radius:14px;border:1.5px solid #3A4F7C;background:transparent;color:#fff;font-size:17px;font-family:inherit}
-.field::placeholder{color:#7E8FB3}
+.login h1{font-size:32px;margin:22px 0 6px;font-weight:500}
+.login p{color:#D9C6E3;margin:0 0 36px;line-height:1.5}
+.field{width:100%;padding:16px 18px;border-radius:14px;border:1.5px solid #6E4A88;background:transparent;color:#fff;font-size:17px;font-family:inherit}
+.field::placeholder{color:#A88CBD}
 .field:focus{outline:none;border-color:var(--gold)}
 .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
-.chip{padding:8px 14px;border-radius:999px;border:1px solid #3A4F7C;color:#D5DDEE;background:transparent;font-size:14px;font-family:inherit;cursor:pointer}
+.chip{padding:8px 14px;border-radius:999px;border:1px solid #6E4A88;color:#EBDDF2;background:transparent;font-size:14px;font-family:inherit;cursor:pointer}
 .chip:active{background:var(--navy-2)}
 .btn{display:block;width:100%;border:0;border-radius:14px;padding:16px;font-size:16px;font-weight:600;font-family:inherit;cursor:pointer}
 .btn-gold{background:var(--gold);color:var(--navy)}
@@ -47,14 +49,14 @@ h1,h2,h3,.serif{font-family:'Fraunces',Georgia,serif}
 .top{background:var(--navy);color:#fff;padding:calc(env(safe-area-inset-top,0px) + 18px) 20px 22px;border-radius:0 0 26px 26px}
 .top-row{display:flex;justify-content:space-between;align-items:center}
 .top h2{font-size:24px;margin:0;font-weight:500}
-.top small{color:#B9C4DB;font-size:13px}
-.icon-btn{background:transparent;border:1px solid #3A4F7C;color:#D5DDEE;border-radius:12px;width:40px;height:40px;font-size:16px;cursor:pointer;margin-left:8px}
+.top small{color:#D9C6E3;font-size:13px}
+.icon-btn{background:transparent;border:1px solid #6E4A88;color:#EBDDF2;border-radius:12px;width:40px;height:40px;font-size:16px;cursor:pointer;margin-left:8px}
 .tabs{display:flex;gap:6px;margin-top:18px;background:var(--navy-2);padding:4px;border-radius:12px}
-.tab{flex:1;border:0;background:transparent;color:#B9C4DB;padding:9px;border-radius:9px;font-size:14px;font-weight:500;font-family:inherit;cursor:pointer}
+.tab{flex:1;border:0;background:transparent;color:#D9C6E3;padding:9px;border-radius:9px;font-size:14px;font-weight:500;font-family:inherit;cursor:pointer}
 .tab[aria-selected=true]{background:var(--gold);color:var(--navy);font-weight:600}
 .progress{margin-top:16px;height:5px;border-radius:5px;background:var(--navy-2);overflow:hidden}
 .progress i{display:block;height:100%;background:var(--mint);width:0;transition:width .3s}
-.pcount{font-size:13px;color:#B9C4DB;margin-top:8px}
+.pcount{font-size:13px;color:#D9C6E3;margin-top:8px}
 /* Timeline */
 .list{padding:22px 16px 190px}
 .slot{display:grid;grid-template-columns:22px 1fr;gap:12px}
@@ -73,10 +75,10 @@ textarea{resize:none;min-height:46px}
 .pair{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
 select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%236A7690' stroke-width='2'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:30px}
 /* Bottom bar */
-.bar{position:fixed;left:0;right:0;bottom:0;z-index:20;padding:12px 16px calc(env(safe-area-inset-bottom,0px) + 12px);background:rgba(244,246,250,.94);backdrop-filter:blur(10px);border-top:1px solid var(--line)}
+.bar{position:fixed;left:0;right:0;bottom:0;z-index:20;padding:12px 16px calc(env(safe-area-inset-bottom,0px) + 12px);background:rgba(248,244,248,.94);backdrop-filter:blur(10px);border-top:1px solid var(--line)}
 .bar-in{max-width:480px;margin:0 auto;display:grid;gap:8px}
 /* Sheet */
-.veil{position:fixed;inset:0;background:rgba(14,31,63,.55);z-index:40;display:flex;align-items:flex-end;justify-content:center}
+.veil{position:fixed;inset:0;background:rgba(59,29,79,.55);z-index:40;display:flex;align-items:flex-end;justify-content:center}
 .sheet{background:#fff;width:100%;max-width:480px;max-height:88vh;overflow:auto;border-radius:24px 24px 0 0;padding:24px 22px calc(env(safe-area-inset-bottom,0px) + 24px);animation:up .25s ease-out}
 @keyframes up{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
 .sheet h3{font-size:22px;margin:0 0 4px;color:var(--navy)}
@@ -88,6 +90,8 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 .sec.good li{background:#E8F6F1}
 .sec.thief li{background:#FBEDEA}
 .sec.tip li{background:var(--gold-soft)}
+.sec.day li{background:var(--mist)}
+.sec.hab li{background:#F1E8F6}
 .lbl{display:block;font-size:13px;color:var(--muted);margin:14px 0 6px}
 .note{font-size:12.5px;color:var(--muted);line-height:1.5;margin-top:10px}
 .toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 14px);transform:translateX(-50%);background:var(--navy);color:#fff;padding:11px 18px;border-radius:999px;font-size:14px;z-index:60;border:1px solid var(--gold)}
@@ -99,8 +103,8 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 
   <!-- Connexion -->
   <section id="login" class="login hidden">
-    <div class="mark">90</div>
-    <h1>BAS 90 Tracker</h1>
+    <img src="icon-192.png" alt="Logo Bloc 90" width="84" height="84" style="border-radius:20px;display:block">
+    <h1>Bloc 90</h1>
     <p>Note ta journée par tranches de 2 heures et repère ce qui te prend ton temps.</p>
     <input id="nameInput" class="field" type="text" placeholder="Ton prénom" autocomplete="given-name" autocapitalize="words" aria-label="Prénom">
     <div class="chips" id="chips"></div>
@@ -235,44 +239,74 @@ $('list').addEventListener('input', e => {
 function save(){ store.set(dayKey(user, offset), JSON.stringify(data)); toast('Journée enregistrée'); }
 
 /* ---------- Analyse ---------- */
-function compile(){
+const slotLabel = (a,b) => `${pad(a)}h-${pad(b)}h`;
+function rowsOf(d){
   const out = [];
-  [-1,0].forEach(off => {
-    const d = loadDay(user, off);
-    SLOTS.forEach(([a,b],i) => { const s = d[i]; if (s && (s.activity||'').trim()) out.push({jour: off===0?'Aujourd’hui':'Hier', heure:`${pad(a)}h-${pad(b)}h`, h:a, activite:s.activity.trim(), niveau:s.level||'', cause:s.cause||''}); });
-  });
+  SLOTS.forEach(([a,b],i) => { const s = d[i]; if (s && (s.activity||'').trim()) out.push({heure:slotLabel(a,b), h:a, activite:s.activity.trim(), niveau:s.level||'', cause:s.cause||''}); });
   return out;
 }
-function localAnalysis(rows){
-  const forces = [], thieves = [], tips = [];
-  const total = rows.length;
-  const low = rows.filter(r => r.niveau === 'Faible');
-  const joursRemplis = new Set(rows.map(r => r.jour)).size;
-  forces.push(`${total} tranche${total>1?'s':''} documentée${total>1?'s':''} sur 48h${joursRemplis===2?', avec un suivi sur les deux jours':''}. Tenir le suivi est déjà un premier levier.`);
-  if (low.length) {
-    const byH = {}; low.forEach(r => byH[r.heure] = (byH[r.heure]||0)+1);
-    var best = Object.entries(byH).sort((x,y)=>y[1]-x[1])[0][0];
-    forces.push(`${low.length} tranche${low.length>1?'s':''} à faible distraction. Ton créneau le plus concentré : ${best}.`);
-  }
-  const eleves = rows.filter(r => r.niveau === 'Élevé').length;
-  if (total && eleves === 0) forces.push('Aucune tranche à distraction élevée : tu protèges bien ton attention.');
-
-  const agg = {};
-  rows.forEach(r => { if (r.cause && r.cause !== 'Aucune') { const w = WEIGHT[r.niveau]||1; agg[r.cause] = agg[r.cause]||{n:0,w:0}; agg[r.cause].n++; agg[r.cause].w += w; } });
-  const top = Object.entries(agg).sort((x,y)=>y[1].w-x[1].w);
-  top.slice(0,3).forEach(([c,v]) => thieves.push(`${c} : ${v.n} fois sur 48h, impact cumulé ${v.w}/${v.n*3}.`));
-  const pire = rows.filter(r=>r.niveau==='Élevé').map(r=>r.heure);
-  if (pire.length) thieves.push(`Tranches les plus perturbées : ${[...new Set(pire)].join(', ')}.`);
-  if (!thieves.length) thieves.push('Aucun chronophage identifié : renseigne la cause à chaque tranche pour affiner l’analyse.');
-
-  tips.push(best ? `Place ton prochain bloc de 90 minutes sur ${best}, ton créneau le plus concentré : une seule tâche prioritaire, téléphone en mode avion.` : 'Place ton prochain bloc de 90 minutes tôt le matin, une seule tâche prioritaire, téléphone en mode avion.');
-  tips.push(top.length ? `Contre ${top[0][0].toLowerCase()} : ${TACTICS[top[0][0]]}` : 'Avant de démarrer, écris en une phrase ce que tu veux avoir terminé dans 90 minutes.');
-  return {forces, chronophages:thieves, conseils:tips.slice(0,2), source:'Analyse locale de tes données'};
+const lvName = m => m<1.5 ? 'faible' : m<2.3 ? 'moyenne' : 'élevée';
+function dayStats(rows){
+  const lv = rows.filter(r => WEIGHT[r.niveau]);
+  const avg = lv.length ? lv.reduce((t,r)=>t+WEIGHT[r.niveau],0)/lv.length : null;
+  const th = {};
+  rows.forEach(r => { if (r.cause && r.cause!=='Aucune') { th[r.cause] = th[r.cause]||{n:0,w:0}; th[r.cause].n++; th[r.cause].w += WEIGHT[r.niveau]||1; } });
+  return {n:rows.length, avg, top:Object.entries(th).sort((x,y)=>y[1].w-x[1].w), best:rows.find(r=>r.niveau==='Faible'), worst:rows.filter(r=>r.niveau==='Élevé')};
 }
-async function aiAnalysis(rows){
+function habitsOf(hist){
+  const N = hist.length, lines = [], info = {};
+  if (N < 2) return {lines:['Continue le suivi quelques jours : tes habitudes apparaîtront dès 2 jours renseignés.'], info};
+  const dc = {};
+  hist.forEach(rows => new Set(rows.filter(r=>r.cause&&r.cause!=='Aucune').map(r=>r.cause)).forEach(c => dc[c]=(dc[c]||0)+1));
+  const rec = Object.entries(dc).filter(([,k])=>k>=2).sort((x,y)=>y[1]-x[1]);
+  if (rec.length) { info.cause = rec[0][0]; lines.push(`${rec[0][0]} revient sur ${rec[0][1]} jours sur ${N} suivis : c’est une habitude, pas un accident.`); }
+  const bw = {};
+  hist.forEach(rows => new Set(rows.filter(r=>r.niveau==='Faible').map(r=>r.heure)).forEach(h => bw[h]=(bw[h]||0)+1));
+  const bb = Object.entries(bw).filter(([,k])=>k>=2).sort((x,y)=>y[1]-x[1]);
+  if (bb.length) { info.best = bb[0][0]; lines.push(`Ton créneau fort : ${bb[0][0]}, à faible distraction sur ${bb[0][1]} jours.`); }
+  const per = {matin:[], 'après-midi':[], soir:[]}, nom = {matin:'le matin','après-midi':'l’après-midi',soir:'le soir'};
+  hist.flat().forEach(r => { if (WEIGHT[r.niveau]) per[r.h<12?'matin':r.h<18?'après-midi':'soir'].push(WEIGHT[r.niveau]); });
+  const av = Object.entries(per).filter(([,v])=>v.length>=2).map(([k,v])=>[k,v.reduce((a,b)=>a+b,0)/v.length]).sort((x,y)=>y[1]-x[1]);
+  if (av.length >= 2 && av[0][1]-av[av.length-1][1] >= 0.5) lines.push(`Tes distractions montent ${nom[av[0][0]]} et sont au plus bas ${nom[av[av.length-1][0]]}.`);
+  if (!lines.length) lines.push('Pas encore d’habitude nette : tes journées varient. Continue le suivi pour voir un schéma se dessiner.');
+  return {lines, info};
+}
+function localAnalysis(ctx){
+  const {hier, auj, hist} = ctx;
+  const sh = dayStats(hier), sa = dayStats(auj), hb = habitsOf(hist);
+  const dayLines = s => {
+    if (!s.n) return ['Aucune donnée saisie ce jour-là.'];
+    const L = [`${s.n} tranche${s.n>1?'s':''} renseignée${s.n>1?'s':''}${s.avg!==null?`, distraction ${lvName(s.avg)}`:''}.`];
+    if (s.best) L.push(`Moment le plus concentré : ${s.best.heure}.`);
+    if (s.top.length) L.push(`Principal frein : ${s.top[0][0].toLowerCase()} (${s.top[0][1].n} fois).`);
+    return L;
+  };
+  const jh = dayLines(sh), ja = dayLines(sa);
+  if (sh.n && sa.n) {
+    if (sh.avg!==null && sa.avg!==null) { const d = sa.avg-sh.avg; ja.push(Math.abs(d)<0.25 ? 'Distraction stable par rapport à hier.' : d<0 ? 'Tu es moins distraite qu’hier : garde ce qui a fonctionné.' : 'Tu es plus distraite qu’hier : repère ce qui a changé dans ta journée.'); }
+    if (sh.top[0] && sa.top[0]) ja.push(sh.top[0][0]!==sa.top[0][0] ? `Le frein change : ${sh.top[0][0].toLowerCase()} hier, ${sa.top[0][0].toLowerCase()} aujourd’hui.` : `Même frein deux jours de suite : ${sa.top[0][0].toLowerCase()}.`);
+  }
+  const rows = [...hier, ...auj], forces = [], thieves = [], tips = [];
+  const total = rows.length, low = rows.filter(r => r.niveau==='Faible');
+  forces.push(`${total} tranche${total>1?'s':''} documentée${total>1?'s':''} sur 48h : tenir le suivi est déjà un levier.`);
+  let best = null;
+  if (low.length) { const byH = {}; low.forEach(r => byH[r.heure]=(byH[r.heure]||0)+1); best = Object.entries(byH).sort((x,y)=>y[1]-x[1])[0][0]; forces.push(`${low.length} tranche${low.length>1?'s':''} à faible distraction, surtout ${best}.`); }
+  if (total && !rows.some(r => r.niveau==='Élevé')) forces.push('Aucune tranche à distraction élevée : tu protèges bien ton attention.');
+  const top = dayStats(rows).top;
+  top.slice(0,3).forEach(([c,v]) => thieves.push(`${c} : ${v.n} fois sur 48h.`));
+  const pires = [...new Set(rows.filter(r=>r.niveau==='Élevé').map(r=>r.heure))];
+  if (pires.length) thieves.push(`Tranches les plus perturbées : ${pires.join(', ')}.`);
+  if (!thieves.length) thieves.push('Aucun chronophage identifié : renseigne la cause à chaque tranche pour affiner l’analyse.');
+  const slot = hb.info.best || best, cause = hb.info.cause || (top[0] && top[0][0]);
+  tips.push(slot ? `Place ton prochain bloc de 90 minutes sur ${slot}${hb.info.best?', ton créneau fort habituel':''} : une seule tâche prioritaire, téléphone en mode avion.` : 'Place ton prochain bloc de 90 minutes tôt le matin : une seule tâche prioritaire, téléphone en mode avion.');
+  tips.push(cause && TACTICS[cause] ? `Contre ${cause.toLowerCase()}${hb.info.cause?' (une habitude chez toi)':''} : ${TACTICS[cause]}` : 'Avant de démarrer, écris en une phrase ce que tu veux avoir terminé dans 90 minutes.');
+  return {jours:[{titre:'Hier', lignes:jh},{titre:'Aujourd’hui', lignes:ja}], habitudes:hb.lines, forces, chronophages:thieves, conseils:tips, source:'Analyse locale de tes données'};
+}
+async function aiAnalysis(ctx){
   const provider = store.get('bas90.provider') || 'local', key = store.get('bas90.key') || '';
-  if (provider === 'local' || !key) return localAnalysis(rows);
-  const prompt = `Tu es coach en productivité pour des femmes entrepreneures. Voici le suivi de ${user} sur 48h (JSON) :\n${JSON.stringify(rows)}\nRéponds uniquement en JSON : {"forces":[2 à 3 phrases],"chronophages":[2 à 3 phrases],"conseils":[exactement 2 conseils concrets pour son prochain bloc de 90 minutes]}. Tutoie-la, sois chaleureuse et précise.`;
+  if (provider === 'local' || !key) return localAnalysis(ctx);
+  const histo = ctx.hist.slice(0,-1).map((rows,i) => ({jour:i+1, tranches:rows.length, causes:[...new Set(rows.map(r=>r.cause).filter(Boolean))], niveaux:rows.map(r=>r.niveau).filter(Boolean)}));
+  const prompt = `Tu es coach en productivité pour des femmes entrepreneures. Voici le suivi de ${user}.\nHIER : ${JSON.stringify(ctx.hier)}\nAUJOURD’HUI : ${JSON.stringify(ctx.auj)}\nHISTORIQUE des jours précédents (résumé) : ${JSON.stringify(histo)}\nDistingue clairement hier et aujourd’hui, compare-les et relie-les à ses habitudes récurrentes. Réponds uniquement en JSON : {"hier":[2 phrases],"aujourdhui":[2 à 3 phrases comparant à hier],"habitudes":[2 phrases sur ce qui revient],"forces":[2 phrases],"chronophages":[2 phrases],"conseils":[exactement 2 conseils concrets pour son prochain bloc de 90 minutes]}. Tutoie-la, sois chaleureuse et précise.`;
   try {
     let txt;
     if (provider === 'gemini') {
@@ -285,9 +319,9 @@ async function aiAnalysis(rows){
       txt = (await r.json()).choices[0].message.content;
     }
     const j = JSON.parse(txt.replace(/```json|```/g,'').trim());
-    return {forces:j.forces, chronophages:j.chronophages, conseils:(j.conseils||[]).slice(0,2), source: provider==='gemini'?'Analyse IA (Gemini)':'Analyse IA (OpenAI)'};
+    return {jours:[{titre:'Hier', lignes:j.hier},{titre:'Aujourd’hui', lignes:j.aujourdhui}], habitudes:j.habitudes, forces:j.forces, chronophages:j.chronophages, conseils:(j.conseils||[]).slice(0,2), source: provider==='gemini'?'Analyse IA (Gemini)':'Analyse IA (OpenAI)'};
   } catch (e) {
-    const r = localAnalysis(rows); r.source = 'Analyse locale (l’IA n’a pas répondu : vérifie ta clé et ta connexion)'; return r;
+    const r = localAnalysis(ctx); r.source = 'Analyse locale (l’IA n’a pas répondu : vérifie ta clé et ta connexion)'; return r;
   }
 }
 function openSheet(html){ $('sheet').innerHTML = html; $('modal').classList.remove('hidden'); }
@@ -297,12 +331,16 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSheet()
 
 async function analyze(){
   store.set(dayKey(user, offset), JSON.stringify(data));
-  const rows = compile();
-  if (!rows.length) { openSheet(`<h3>Rien à analyser</h3><p class="note">Remplis au moins une tranche aujourd’hui ou hier, puis relance l’analyse.</p><button class="btn btn-navy" style="margin-top:18px" data-close>Compris</button>`); return; }
-  openSheet(`<h3>Analyse en cours…</h3><p class="note">Lecture de tes ${rows.length} tranches sur 48h.</p>`);
-  const r = await aiAnalysis(rows);
+  const hier = rowsOf(loadDay(user,-1)), auj = rowsOf(loadDay(user,0));
+  const hist = []; for (let o=-13; o<=0; o++) { const r = rowsOf(loadDay(user,o)); if (r.length) hist.push(r); }
+  if (!hier.length && !auj.length) { openSheet(`<h3>Rien à analyser</h3><p class="note">Remplis au moins une tranche aujourd’hui ou hier, puis relance l’analyse.</p><button class="btn btn-navy" style="margin-top:18px" data-close>Compris</button>`); return; }
+  openSheet(`<h3>Analyse en cours…</h3><p class="note">Lecture de tes journées d’hier et d’aujourd’hui.</p>`);
+  const r = await aiAnalysis({hier, auj, hist});
   const li = a => (a||[]).map(x => `<li>${esc(x)}</li>`).join('');
+  const jours = (r.jours||[]).map(j => `<div class="sec day"><h4>${esc(j.titre)}</h4><ul>${li(j.lignes)}</ul></div>`).join('');
   openSheet(`<h3>Ton diagnostic sur 48h</h3><div class="src">${esc(r.source)}</div>
+    ${jours}
+    <div class="sec hab"><h4>Tes habitudes</h4><ul>${li(r.habitudes)}</ul></div>
     <div class="sec good"><h4>Tes points forts</h4><ul>${li(r.forces)}</ul></div>
     <div class="sec thief"><h4>Tes voleurs de temps</h4><ul>${li(r.chronophages)}</ul></div>
     <div class="sec tip"><h4>2 conseils pour ton prochain bloc de 90 minutes</h4><ul>${li(r.conseils)}</ul></div>
@@ -332,15 +370,8 @@ $('saveBtn').onclick = save;
 $('aiBtn').onclick = analyze;
 document.querySelectorAll('.tab').forEach(t => t.onclick = () => { store.set(dayKey(user, offset), JSON.stringify(data)); setDay(+t.dataset.off); });
 
-/* ---------- PWA : manifeste intégré + service worker ---------- */
-(function pwa(){
-  try {
-    const icon = "data:image/svg+xml," + encodeURIComponent("<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' fill='#0E1F3F'/><text x='256' y='330' font-family='Georgia,serif' font-size='230' font-weight='700' text-anchor='middle' fill='#C9A24B'>90</text></svg>");
-    const m = {name:'BAS 90 Tracker',short_name:'BAS 90',lang:'fr',start_url:'./',scope:'./',display:'standalone',orientation:'portrait',background_color:'#0E1F3F',theme_color:'#0E1F3F',icons:[{src:icon,sizes:'512x512',type:'image/svg+xml',purpose:'any'}]};
-    const l = document.createElement('link'); l.rel='manifest'; l.href = URL.createObjectURL(new Blob([JSON.stringify(m)],{type:'application/manifest+json'})); document.head.appendChild(l);
-  } catch {}
-  if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(()=>{});
-})();
+/* ---------- PWA ---------- */
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(()=>{});
 
 /* ---------- Démarrage ---------- */
 const saved = store.get('bas90.user');
