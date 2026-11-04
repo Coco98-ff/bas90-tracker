@@ -121,7 +121,7 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
           <h2 id="hello"></h2>
         </div>
         <div>
-          <button class="icon-btn" id="settingsBtn" aria-label="Réglages IA">⚙</button><button class="icon-btn" id="logoutBtn" aria-label="Changer de participante">⎋</button>
+          <button class="icon-btn" id="logoutBtn" aria-label="Changer de participante">⎋</button>
         </div>
       </div>
       <div class="tabs" role="tablist">
@@ -157,14 +157,14 @@ const LEVELS = ['Faible','Moyen','Élevé'];
 const WEIGHT = {'Faible':1,'Moyen':2,'Élevé':3};
 const CAUSES = ['Réseaux sociaux','Procrastination','Appels','Messages WhatsApp','Interruptions (foyer, famille)','Fatigue','Perfectionnisme','Imprévus clients','Aucune'];
 const TACTICS = {
-  'Réseaux sociaux':'Place ton téléphone dans une autre pièce pendant le bloc et programme 10 minutes de réseaux en récompense à la fin.',
-  'Procrastination':'Commence par une version de 10 minutes de la tâche la plus redoutée : l’élan vient après le démarrage.',
-  'Appels':'Préviens ton entourage de ta plage injoignable et regroupe les rappels dans un seul créneau de 30 minutes.',
-  'Messages WhatsApp':'Coupe les notifications WhatsApp pendant 90 minutes et réponds à tous les messages en une seule fois après.',
-  'Interruptions (foyer, famille)':'Annonce ton horaire de travail à ton foyer et prépare ce dont tu as besoin avant de t’isoler.',
-  'Fatigue':'Garde pour ce bloc une tâche légère, fais une pause de 5 minutes debout et bois un verre d’eau avant de commencer.',
-  'Perfectionnisme':'Fixe-toi un livrable « assez bien » avec une durée limite, puis relis-le une seule fois.',
-  'Imprévus clients':'Réserve un créneau d’urgences dans ta journée pour que les imprévus ne mangent pas tes blocs de travail.'
+  'Réseaux sociaux':['Mets ton téléphone dans une autre pièce pendant le bloc et offre-toi 10 minutes de réseaux à la fin.','Désinstalle ou masque les applications de réseaux sur ton écran principal pendant le bloc, et ouvre-les seulement à l’heure choisie.','Utilise un minuteur de 25 minutes : tu ne regardes ton téléphone qu’entre deux minuteurs.'],
+  'Procrastination':['Commence par une version de 10 minutes de la tâche la plus redoutée : l’élan vient après le démarrage.','Découpe la tâche en trois mini-étapes et ne fais que la première, sans te demander la suite.','Dis à une personne de confiance ce que tu livres à la fin du bloc : l’engagement aide à démarrer.'],
+  'Appels':['Préviens ton entourage de ta plage injoignable et regroupe les rappels dans un seul créneau de 30 minutes.','Active le mode « Ne pas déranger » avec seulement quelques contacts autorisés pendant le bloc.','Programme un créneau d’appels fixe chaque jour : tout le monde apprend à t’appeler à cette heure.'],
+  'Messages WhatsApp':['Coupe les notifications WhatsApp pendant 90 minutes et réponds à tout en une seule fois après.','Mets WhatsApp en silencieux et écris un message d’absence qui indique l’heure de ta réponse.','Ouvre WhatsApp deux fois par jour à heure fixe, et pas en réaction à chaque notification.'],
+  'Interruptions (foyer, famille)':['Annonce ton horaire de travail à ton foyer et prépare ce dont tu as besoin avant de t’isoler.','Affiche un signe simple sur ta porte ou ta table pour dire « bloc en cours, retour dans 90 minutes ».','Place ton bloc avant le réveil de la maison ou après le coucher, quand les sollicitations sont rares.'],
+  'Fatigue':['Garde pour ce bloc une tâche légère, fais une pause de 5 minutes debout et bois un verre d’eau avant de commencer.','Déplace ton bloc le plus exigeant à ton moment d’énergie et garde la fin de journée pour l’administratif.','Fais une courte marche de 5 minutes avant de commencer : elle relance la concentration mieux qu’un café.'],
+  'Perfectionnisme':['Fixe-toi un livrable « assez bien » avec une durée limite, puis relis-le une seule fois.','Termine une première version moche en 30 minutes, puis améliore-la avec le temps qui reste.','Décide à l’avance de ce qui est « fini » en trois critères, et arrête-toi quand ils sont remplis.'],
+  'Imprévus clients':['Réserve un créneau d’urgences dans ta journée pour que les imprévus ne mangent pas tes blocs de travail.','Annonce à tes clients tes heures de réponse : ils s’adaptent vite quand le cadre est clair.','Garde 30 minutes libres après chaque bloc pour absorber les demandes arrivées pendant ce temps.']
 };
 
 /* ---------- Stockage ---------- */
@@ -271,6 +271,39 @@ function habitsOf(hist){
   if (!lines.length) lines.push('Pas encore d’habitude nette : tes journées varient. Continue le suivi pour voir un schéma se dessiner.');
   return {lines, info};
 }
+const short = t => { t = t.replace(/\s+/g,' ').trim(); return t.length>42 ? t.slice(0,40).trim()+'…' : t; };
+const hash = t => [...t].reduce((h,c) => (h*31+c.charCodeAt(0))>>>0, 7);
+const pick = (arr,k) => arr[hash(user+dateKey(0)+k) % arr.length];
+function buildTips(x){
+  const {rows, hb, best, top, sh, sa} = x;
+  const slot = hb.info.best || best;
+  const ref = rows.find(r => r.heure===slot && r.niveau==='Faible');
+  const t1 = (slot && ref) ? pick([
+    `Ton prochain bloc de 90 minutes : ${slot}. Tu y étais très concentrée sur « ${short(ref.activite)} » : refais les mêmes conditions et garde ta tâche la plus importante pour ce bloc.`,
+    `${slot} est ton moment fort (« ${short(ref.activite)} »). Réserve-le à une seule tâche qui compte, et prépare dès la veille ce qu’il te faut pour démarrer sans chercher.`,
+    `Pour ton prochain bloc de 90 minutes, reprends ${slot} : « ${short(ref.activite)} » s’y est bien passé. Écris avant de commencer ce que tu veux avoir terminé à la fin.`
+  ],'b') : pick([
+    'Choisis demain ton créneau le plus calme pour un bloc de 90 minutes : une seule tâche, téléphone en mode avion, et note à la fin ce qui t’a le mieux aidée.',
+    'Pour ton prochain bloc de 90 minutes, écris d’abord en une phrase le résultat attendu, puis lance un minuteur et ne fais que cette tâche.',
+    'Essaie un bloc de 90 minutes tôt le matin : une seule tâche prioritaire, pas de messages, et une vraie pause de 10 minutes ensuite.'
+  ],'b0');
+  const c = [];
+  const cause = hb.info.cause || (top[0] && top[0][0]);
+  if (cause && TACTICS[cause]) {
+    const w = rows.filter(r => r.cause===cause).sort((a,b) => (WEIGHT[b.niveau]||1)-(WEIGHT[a.niveau]||1))[0];
+    c.push({p:3+(hb.info.cause?1:0), t:`${cause} t’a coupée à ${w.heure} pendant « ${short(w.activite)} »${hb.info.cause?', et ce n’est pas la première fois':''}. ${pick(TACTICS[cause],'c')}`});
+  }
+  const pires = [...new Set(rows.filter(r => r.niveau==='Élevé').map(r => r.heure))];
+  if (pires.length) c.push({p:2, t:`Tes tranches les plus perturbées (${pires.join(', ')}) demandent un autre rythme : glisse 10 minutes de vraie pause avant, et garde ces horaires pour les tâches légères comme les messages ou l’administratif.`});
+  if (sh.n && sa.n && sh.avg!==null && sa.avg!==null) {
+    if (sa.avg > sh.avg+0.25) c.push({p:2.5, t:'Ta distraction a monté depuis hier : repère ce qui a changé (horaires, lieu, sollicitations) et retrouve les conditions d’hier pour ton prochain bloc.'});
+    else if (sa.avg < sh.avg-0.25) c.push({p:1.5, t:'Tu es plus concentrée qu’hier : note en une phrase ce que tu as changé, pour le reproduire demain.'});
+  }
+  if (rows.filter(r => r.niveau==='Moyen' && !r.cause).length >= 2) c.push({p:2, t:'Plusieurs tranches « moyennes » n’ont pas de cause : indique-la juste après chaque tranche, c’est elle qui rend tes conseils plus précis.'});
+  if (rows.length < 5) c.push({p:1, t:'Ton suivi a encore des trous : remplis chaque tranche juste après (2 minutes) pour que l’analyse voie tes vraies habitudes.'});
+  c.sort((a,b) => b.p-a.p || (hash(user+a.t)%7)-(hash(user+b.t)%7));
+  return [t1, c.length ? c[0].t : pick(['Avant chaque bloc, écris en une phrase ce que tu veux avoir terminé dans 90 minutes.','Termine ta journée en notant une chose qui t’a fait gagner du temps : tu la reproduiras demain.'],'d')];
+}
 function localAnalysis(ctx){
   const {hier, auj, hist} = ctx;
   const sh = dayStats(hier), sa = dayStats(auj), hb = habitsOf(hist);
@@ -297,31 +330,21 @@ function localAnalysis(ctx){
   const pires = [...new Set(rows.filter(r=>r.niveau==='Élevé').map(r=>r.heure))];
   if (pires.length) thieves.push(`Tranches les plus perturbées : ${pires.join(', ')}.`);
   if (!thieves.length) thieves.push('Aucun chronophage identifié : renseigne la cause à chaque tranche pour affiner l’analyse.');
-  const slot = hb.info.best || best, cause = hb.info.cause || (top[0] && top[0][0]);
-  tips.push(slot ? `Place ton prochain bloc de 90 minutes sur ${slot}${hb.info.best?', ton créneau fort habituel':''} : une seule tâche prioritaire, téléphone en mode avion.` : 'Place ton prochain bloc de 90 minutes tôt le matin : une seule tâche prioritaire, téléphone en mode avion.');
-  tips.push(cause && TACTICS[cause] ? `Contre ${cause.toLowerCase()}${hb.info.cause?' (une habitude chez toi)':''} : ${TACTICS[cause]}` : 'Avant de démarrer, écris en une phrase ce que tu veux avoir terminé dans 90 minutes.');
+  tips.push(...buildTips({rows, hb, best, top, sh, sa}));
   return {jours:[{titre:'Hier', lignes:jh},{titre:'Aujourd’hui', lignes:ja}], habitudes:hb.lines, forces, chronophages:thieves, conseils:tips, source:'Analyse locale de tes données'};
 }
 async function aiAnalysis(ctx){
-  const provider = store.get('bas90.provider') || 'local', key = store.get('bas90.key') || '';
-  if (provider === 'local' || !key) return localAnalysis(ctx);
-  const histo = ctx.hist.slice(0,-1).map((rows,i) => ({jour:i+1, tranches:rows.length, causes:[...new Set(rows.map(r=>r.cause).filter(Boolean))], niveaux:rows.map(r=>r.niveau).filter(Boolean)}));
-  const prompt = `Tu es coach en productivité pour des femmes entrepreneures. Voici le suivi de ${user}.\nHIER : ${JSON.stringify(ctx.hier)}\nAUJOURD’HUI : ${JSON.stringify(ctx.auj)}\nHISTORIQUE des jours précédents (résumé) : ${JSON.stringify(histo)}\nDistingue clairement hier et aujourd’hui, compare-les et relie-les à ses habitudes récurrentes. Réponds uniquement en JSON : {"hier":[2 phrases],"aujourdhui":[2 à 3 phrases comparant à hier],"habitudes":[2 phrases sur ce qui revient],"forces":[2 phrases],"chronophages":[2 phrases],"conseils":[exactement 2 conseils concrets pour son prochain bloc de 90 minutes]}. Tutoie-la, sois chaleureuse et précise.`;
   try {
-    let txt;
-    if (provider === 'gemini') {
-      const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${encodeURIComponent(key)}`, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{responseMimeType:'application/json'}})});
-      if (!r.ok) throw new Error(r.status);
-      txt = (await r.json()).candidates[0].content.parts[0].text;
-    } else {
-      const r = await fetch('https://api.openai.com/v1/chat/completions', {method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+key},body:JSON.stringify({model:'gpt-4o-mini',response_format:{type:'json_object'},messages:[{role:'user',content:prompt}]})});
-      if (!r.ok) throw new Error(r.status);
-      txt = (await r.json()).choices[0].message.content;
-    }
-    const j = JSON.parse(txt.replace(/```json|```/g,'').trim());
-    return {jours:[{titre:'Hier', lignes:j.hier},{titre:'Aujourd’hui', lignes:j.aujourdhui}], habitudes:j.habitudes, forces:j.forces, chronophages:j.chronophages, conseils:(j.conseils||[]).slice(0,2), source: provider==='gemini'?'Analyse IA (Gemini)':'Analyse IA (OpenAI)'};
+    const histo = ctx.hist.slice(0,-1).map(rows => ({tranches:rows.length, causes:[...new Set(rows.map(r=>r.cause).filter(Boolean))], niveaux:rows.map(r=>r.niveau).filter(Boolean)}));
+    const ac = new AbortController(), to = setTimeout(() => ac.abort(), 25000);
+    const r = await fetch('/api/analyze', {method:'POST', headers:{'Content-Type':'application/json'}, signal:ac.signal, body:JSON.stringify({prenom:user, hier:ctx.hier, auj:ctx.auj, histo})});
+    clearTimeout(to);
+    if (!r.ok) throw new Error(r.status);
+    const j = await r.json();
+    if (!j.conseils || !j.conseils.length) throw new Error('vide');
+    return {jours:[{titre:'Hier', lignes:j.hier},{titre:'Aujourd’hui', lignes:j.aujourdhui}], habitudes:j.habitudes, forces:j.forces, chronophages:j.chronophages, conseils:j.conseils, source:'Analyse IA personnalisée'};
   } catch (e) {
-    const r = localAnalysis(ctx); r.source = 'Analyse locale (l’IA n’a pas répondu : vérifie ta clé et ta connexion)'; return r;
+    const r = localAnalysis(ctx); r.source = 'Analyse personnalisée de tes données'; return r;
   }
 }
 function openSheet(html){ $('sheet').innerHTML = html; $('modal').classList.remove('hidden'); }
@@ -347,25 +370,11 @@ async function analyze(){
     <button class="btn btn-navy" style="margin-top:22px" data-close>Fermer</button>`);
 }
 
-/* ---------- Réglages IA ---------- */
-function settings(){
-  const p = store.get('bas90.provider') || 'local', k = store.get('bas90.key') || '';
-  openSheet(`<h3>Réglages de l’IA</h3>
-    <label class="lbl" for="prov">Moteur d’analyse</label>
-    <select id="prov"><option value="local" ${p==='local'?'selected':''}>Simulé (sans clé, hors ligne)</option><option value="gemini" ${p==='gemini'?'selected':''}>Google Gemini</option><option value="openai" ${p==='openai'?'selected':''}>OpenAI</option></select>
-    <label class="lbl" for="key">Clé API</label>
-    <input id="key" type="password" class="field" style="color:var(--ink);border-color:var(--line)" value="${esc(k)}" placeholder="Colle ta clé ici" autocomplete="off">
-    <p class="note">La clé reste sur cet appareil. Pour un déploiement auprès de toutes les participantes, passe par un petit serveur qui garde la clé secrète.</p>
-    <button class="btn btn-navy" style="margin-top:16px" id="saveSet">Enregistrer</button>`);
-  $('saveSet').onclick = () => { store.set('bas90.provider', $('prov').value); store.set('bas90.key', $('key').value.trim()); closeSheet(); toast('Réglages enregistrés'); };
-}
-
 /* ---------- Divers ---------- */
 let tt; function toast(m){ const t=$('toast'); t.textContent=m; t.classList.remove('hidden'); clearTimeout(tt); tt=setTimeout(()=>t.classList.add('hidden'),2200); }
 $('loginBtn').onclick = login;
 $('nameInput').addEventListener('keydown', e => { if (e.key==='Enter') login(); });
 $('logoutBtn').onclick = () => { store.del('bas90.user'); user=null; $('nameInput').value=''; showLogin(); };
-$('settingsBtn').onclick = settings;
 $('saveBtn').onclick = save;
 $('aiBtn').onclick = analyze;
 document.querySelectorAll('.tab').forEach(t => t.onclick = () => { store.set(dayKey(user, offset), JSON.stringify(data)); setDay(+t.dataset.off); });
