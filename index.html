@@ -339,12 +339,12 @@ async function aiAnalysis(ctx){
     const ac = new AbortController(), to = setTimeout(() => ac.abort(), 25000);
     const r = await fetch('/api/analyze', {method:'POST', headers:{'Content-Type':'application/json'}, signal:ac.signal, body:JSON.stringify({prenom:user, hier:ctx.hier, auj:ctx.auj, histo})});
     clearTimeout(to);
-    if (!r.ok) throw new Error(r.status);
+    if (!r.ok) { let d = {}; try { d = await r.json(); } catch {} throw new Error([r.status, d.error, d.status].filter(Boolean).join('-')); }
     const j = await r.json();
     if (!j.conseils || !j.conseils.length) throw new Error('vide');
     return {jours:[{titre:'Hier', lignes:j.hier},{titre:'Aujourd’hui', lignes:j.aujourdhui}], habitudes:j.habitudes, forces:j.forces, chronophages:j.chronophages, conseils:j.conseils, source:'Analyse IA personnalisée'};
   } catch (e) {
-    const r = localAnalysis(ctx); r.source = 'Analyse intégrée de tes données'; return r;
+    const r = localAnalysis(ctx); r.source = 'Analyse intégrée de tes données (IA : ' + (e && e.message ? e.message : 'indisponible') + ')'; return r;
   }
 }
 function openSheet(html){ $('sheet').innerHTML = html; $('modal').classList.remove('hidden'); }
