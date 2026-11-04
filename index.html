@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>BAS 90 Tracker</title>
+<meta name="theme-color" content="#0E1F3F">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="BAS 90">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230E1F3F'/%3E%3Ctext x='32' y='42' font-family='Georgia,serif' font-size='28' font-weight='700' text-anchor='middle' fill='%23C9A24B'%3E90%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+:root{
+  --navy:#0E1F3F; --navy-2:#1B315C; --ink:#13203A; --muted:#6A7690;
+  --gold:#C9A24B; --gold-soft:#F4EBD3; --mint:#7FD1B9; --mint-deep:#2E8F78;
+  --paper:#FFFFFF; --mist:#F4F6FA; --line:#E1E6EF;
+  --low:#2E8F78; --mid:#C9A24B; --high:#C2503F;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--mist);color:var(--ink);font-family:'Figtree',system-ui,sans-serif}
+h1,h2,h3,.serif{font-family:'Fraunces',Georgia,serif}
+.wrap{max-width:480px;margin:0 auto;min-height:100vh;background:var(--mist);position:relative}
+.hidden{display:none!important}
+/* Login */
+.login{min-height:100vh;background:var(--navy);color:#fff;padding:calc(env(safe-area-inset-top,0px) + 56px) 28px calc(env(safe-area-inset-bottom,0px) + 32px);display:flex;flex-direction:column}
+.login .mark{font-family:'Fraunces',serif;font-size:76px;line-height:1;color:var(--gold);font-weight:700;letter-spacing:-2px}
+.login h1{font-size:30px;margin:14px 0 6px;font-weight:500}
+.login p{color:#B9C4DB;margin:0 0 36px;line-height:1.5}
+.field{width:100%;padding:16px 18px;border-radius:14px;border:1.5px solid #3A4F7C;background:transparent;color:#fff;font-size:17px;font-family:inherit}
+.field::placeholder{color:#7E8FB3}
+.field:focus{outline:none;border-color:var(--gold)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.chip{padding:8px 14px;border-radius:999px;border:1px solid #3A4F7C;color:#D5DDEE;background:transparent;font-size:14px;font-family:inherit;cursor:pointer}
+.chip:active{background:var(--navy-2)}
+.btn{display:block;width:100%;border:0;border-radius:14px;padding:16px;font-size:16px;font-weight:600;font-family:inherit;cursor:pointer}
+.btn-gold{background:var(--gold);color:var(--navy)}
+.btn-navy{background:var(--navy);color:#fff}
+.btn-mint{background:var(--mint);color:var(--navy)}
+.btn:active{transform:scale(.99)}
+.btn:focus-visible,.chip:focus-visible,select:focus-visible,textarea:focus-visible,input:focus-visible,.icon-btn:focus-visible,.tab:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+/* Header */
+.top{background:var(--navy);color:#fff;padding:calc(env(safe-area-inset-top,0px) + 18px) 20px 22px;border-radius:0 0 26px 26px}
+.top-row{display:flex;justify-content:space-between;align-items:center}
+.top h2{font-size:24px;margin:0;font-weight:500}
+.top small{color:#B9C4DB;font-size:13px}
+.icon-btn{background:transparent;border:1px solid #3A4F7C;color:#D5DDEE;border-radius:12px;width:40px;height:40px;font-size:16px;cursor:pointer;margin-left:8px}
+.tabs{display:flex;gap:6px;margin-top:18px;background:var(--navy-2);padding:4px;border-radius:12px}
+.tab{flex:1;border:0;background:transparent;color:#B9C4DB;padding:9px;border-radius:9px;font-size:14px;font-weight:500;font-family:inherit;cursor:pointer}
+.tab[aria-selected=true]{background:var(--gold);color:var(--navy);font-weight:600}
+.progress{margin-top:16px;height:5px;border-radius:5px;background:var(--navy-2);overflow:hidden}
+.progress i{display:block;height:100%;background:var(--mint);width:0;transition:width .3s}
+.pcount{font-size:13px;color:#B9C4DB;margin-top:8px}
+/* Timeline */
+.list{padding:22px 16px 190px}
+.slot{display:grid;grid-template-columns:22px 1fr;gap:12px}
+.rail{position:relative}
+.rail:before{content:"";position:absolute;left:10px;top:0;bottom:-18px;width:2px;background:var(--line)}
+.slot:last-child .rail:before{bottom:auto;height:22px}
+.dot{position:absolute;left:3px;top:20px;width:16px;height:16px;border-radius:50%;background:#fff;border:3px solid var(--line);transition:border-color .2s,background .2s}
+.dot[data-level="Faible"]{border-color:var(--low);background:var(--low)}
+.dot[data-level="Moyen"]{border-color:var(--mid);background:var(--mid)}
+.dot[data-level="Élevé"]{border-color:var(--high);background:var(--high)}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:18px}
+.time{font-family:'Fraunces',serif;font-weight:700;font-size:16px;color:var(--navy);margin-bottom:10px}
+.time span{color:var(--muted);font-weight:500;font-size:14px}
+textarea,select{width:100%;border:1px solid var(--line);border-radius:10px;padding:11px 12px;font-size:15px;font-family:inherit;color:var(--ink);background:#fff}
+textarea{resize:none;min-height:46px}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%236A7690' stroke-width='2'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:30px}
+/* Bottom bar */
+.bar{position:fixed;left:0;right:0;bottom:0;z-index:20;padding:12px 16px calc(env(safe-area-inset-bottom,0px) + 12px);background:rgba(244,246,250,.94);backdrop-filter:blur(10px);border-top:1px solid var(--line)}
+.bar-in{max-width:480px;margin:0 auto;display:grid;gap:8px}
+/* Sheet */
+.veil{position:fixed;inset:0;background:rgba(14,31,63,.55);z-index:40;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:#fff;width:100%;max-width:480px;max-height:88vh;overflow:auto;border-radius:24px 24px 0 0;padding:24px 22px calc(env(safe-area-inset-bottom,0px) + 24px);animation:up .25s ease-out}
+@keyframes up{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+.sheet h3{font-size:22px;margin:0 0 4px;color:var(--navy)}
+.sheet .src{font-size:12.5px;color:var(--muted);margin-bottom:18px}
+.sec{margin-top:18px}
+.sec h4{margin:0 0 8px;font-size:15px;font-weight:600;color:var(--navy)}
+.sec ul{margin:0;padding:0;list-style:none}
+.sec li{padding:10px 12px;border-radius:10px;margin-bottom:6px;font-size:14.5px;line-height:1.45}
+.sec.good li{background:#E8F6F1}
+.sec.thief li{background:#FBEDEA}
+.sec.tip li{background:var(--gold-soft)}
+.lbl{display:block;font-size:13px;color:var(--muted);margin:14px 0 6px}
+.note{font-size:12.5px;color:var(--muted);line-height:1.5;margin-top:10px}
+.toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 14px);transform:translateX(-50%);background:var(--navy);color:#fff;padding:11px 18px;border-radius:999px;font-size:14px;z-index:60;border:1px solid var(--gold)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- Connexion -->
+  <section id="login" class="login hidden">
+    <div class="mark">90</div>
+    <h1>BAS 90 Tracker</h1>
+    <p>Note ta journée par tranches de 2 heures et repère ce qui te prend ton temps.</p>
+    <input id="nameInput" class="field" type="text" placeholder="Ton prénom" autocomplete="given-name" autocapitalize="words" aria-label="Prénom">
+    <div class="chips" id="chips"></div>
+    <div style="flex:1"></div>
+    <button id="loginBtn" class="btn btn-gold" style="margin-top:28px">Entrer</button>
+  </section>
+
+  <!-- Application -->
+  <section id="app" class="hidden">
+    <header class="top">
+      <div class="top-row">
+        <div>
+          <small id="dateLabel"></small>
+          <h2 id="hello"></h2>
+        </div>
+        <div>
+          <button class="icon-btn" id="settingsBtn" aria-label="Réglages IA">⚙</button><button class="icon-btn" id="logoutBtn" aria-label="Changer de participante">⎋</button>
+        </div>
+      </div>
+      <div class="tabs" role="tablist">
+        <button class="tab" role="tab" data-off="-1" aria-selected="false">Hier</button>
+        <button class="tab" role="tab" data-off="0" aria-selected="true">Aujourd’hui</button>
+      </div>
+      <div class="progress"><i id="pbar"></i></div>
+      <div class="pcount" id="pcount"></div>
+    </header>
+
+    <main class="list" id="list"></main>
+
+    <div class="bar">
+      <div class="bar-in">
+        <button class="btn btn-navy" id="saveBtn">Enregistrer ma journée</button>
+        <button class="btn btn-mint" id="aiBtn">Analyser mes 48h avec l’IA</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div id="modal" class="veil hidden" role="dialog" aria-modal="true"><div class="sheet" id="sheet"></div></div>
+<div id="toast" class="toast hidden" role="status"></div>
+
+<script>
+(() => {
+'use strict';
+
+/* ---------- Configuration ---------- */
+const PRENOMS = ['Madina','Emilia','Axou','Murielle','Johane','Angemichelle','Anaïs'];
+const SLOTS = [[6,8],[8,10],[10,12],[12,14],[14,16],[16,18],[18,20],[20,22],[22,23]];
+const LEVELS = ['Faible','Moyen','Élevé'];
+const WEIGHT = {'Faible':1,'Moyen':2,'Élevé':3};
+const CAUSES = ['Réseaux sociaux','Procrastination','Appels','Messages WhatsApp','Interruptions (foyer, famille)','Fatigue','Perfectionnisme','Imprévus clients','Aucune'];
+const TACTICS = {
+  'Réseaux sociaux':'Place ton téléphone dans une autre pièce pendant le bloc et programme 10 minutes de réseaux en récompense à la fin.',
+  'Procrastination':'Commence par une version de 10 minutes de la tâche la plus redoutée : l’élan vient après le démarrage.',
+  'Appels':'Préviens ton entourage de ta plage injoignable et regroupe les rappels dans un seul créneau de 30 minutes.',
+  'Messages WhatsApp':'Coupe les notifications WhatsApp pendant 90 minutes et réponds à tous les messages en une seule fois après.',
+  'Interruptions (foyer, famille)':'Annonce ton horaire de travail à ton foyer et prépare ce dont tu as besoin avant de t’isoler.',
+  'Fatigue':'Garde pour ce bloc une tâche légère, fais une pause de 5 minutes debout et bois un verre d’eau avant de commencer.',
+  'Perfectionnisme':'Fixe-toi un livrable « assez bien » avec une durée limite, puis relis-le une seule fois.',
+  'Imprévus clients':'Réserve un créneau d’urgences dans ta journée pour que les imprévus ne mangent pas tes blocs de travail.'
+};
+
+/* ---------- Stockage ---------- */
+const mem = {};
+const store = {
+  get(k){ try { return localStorage.getItem(k); } catch { return mem[k] ?? null; } },
+  set(k,v){ try { localStorage.setItem(k,v); } catch { mem[k]=v; } },
+  del(k){ try { localStorage.removeItem(k); } catch { delete mem[k]; } }
+};
+const $ = id => document.getElementById(id);
+const pad = n => String(n).padStart(2,'0');
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const cap = s => s.trim().charAt(0).toUpperCase() + s.trim().slice(1);
+const dateKey = off => { const d = new Date(); d.setDate(d.getDate()+off); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; };
+const dayKey = (u,off) => `bas90.${u.toLowerCase()}.${dateKey(off)}`;
+const loadDay = (u,off) => { try { return JSON.parse(store.get(dayKey(u,off))) || {}; } catch { return {}; } };
+
+let user = null, offset = 0, data = {};
+
+/* ---------- Connexion ---------- */
+function showLogin(){
+  $('app').classList.add('hidden'); $('login').classList.remove('hidden');
+  $('chips').innerHTML = PRENOMS.map(p => `<button class="chip" type="button">${esc(p)}</button>`).join('');
+  $('chips').onclick = e => { if (e.target.classList.contains('chip')) { $('nameInput').value = e.target.textContent; login(); } };
+}
+function login(){
+  const v = $('nameInput').value.trim();
+  if (v.length < 2) { toast('Entre ton prénom pour continuer.'); return; }
+  user = cap(v); store.set('bas90.user', user); showApp();
+}
+function showApp(){
+  $('login').classList.add('hidden'); $('app').classList.remove('hidden');
+  $('hello').textContent = `Bonjour, ${user}`;
+  setDay(0);
+}
+
+/* ---------- Tracking ---------- */
+function setDay(off){
+  offset = off; data = loadDay(user, off);
+  document.querySelectorAll('.tab').forEach(t => t.setAttribute('aria-selected', String(+t.dataset.off === off)));
+  const d = new Date(); d.setDate(d.getDate()+off);
+  $('dateLabel').textContent = d.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
+  render();
+}
+function render(){
+  $('list').innerHTML = SLOTS.map(([a,b],i) => {
+    const s = data[i] || {};
+    return `<div class="slot"><div class="rail"><span class="dot" data-level="${esc(s.level||'')}" id="dot${i}"></span></div>
+    <div class="card">
+      <div class="time">${pad(a)}h00 <span>à ${pad(b)}h00</span></div>
+      <textarea rows="2" data-i="${i}" data-f="activity" placeholder="Qu’as-tu fait ?" aria-label="Activité ${pad(a)}h-${pad(b)}h">${esc(s.activity||'')}</textarea>
+      <div class="pair">
+        <select data-i="${i}" data-f="level" aria-label="Niveau de distraction"><option value="">Distraction</option>${LEVELS.map(l=>`<option ${s.level===l?'selected':''}>${l}</option>`).join('')}</select>
+        <select data-i="${i}" data-f="cause" aria-label="Cause"><option value="">Cause</option>${CAUSES.map(c=>`<option ${s.cause===c?'selected':''}>${esc(c)}</option>`).join('')}</select>
+      </div>
+    </div></div>`;
+  }).join('');
+  progress();
+}
+function progress(){
+  const n = SLOTS.filter((_,i) => (data[i]?.activity||'').trim()).length;
+  $('pbar').style.width = (n/SLOTS.length*100)+'%';
+  $('pcount').textContent = `${n} tranche${n>1?'s':''} sur ${SLOTS.length} remplie${n>1?'s':''}`;
+}
+$('list').addEventListener('input', e => {
+  const t = e.target, i = t.dataset.i; if (i === undefined) return;
+  data[i] = data[i] || {}; data[i][t.dataset.f] = t.value;
+  if (t.dataset.f === 'level') $('dot'+i).dataset.level = t.value;
+  progress();
+  store.set(dayKey(user, offset), JSON.stringify(data)); // sauvegarde auto du brouillon
+});
+function save(){ store.set(dayKey(user, offset), JSON.stringify(data)); toast('Journée enregistrée'); }
+
+/* ---------- Analyse ---------- */
+function compile(){
+  const out = [];
+  [-1,0].forEach(off => {
+    const d = loadDay(user, off);
+    SLOTS.forEach(([a,b],i) => { const s = d[i]; if (s && (s.activity||'').trim()) out.push({jour: off===0?'Aujourd’hui':'Hier', heure:`${pad(a)}h-${pad(b)}h`, h:a, activite:s.activity.trim(), niveau:s.level||'', cause:s.cause||''}); });
+  });
+  return out;
+}
+function localAnalysis(rows){
+  const forces = [], thieves = [], tips = [];
+  const total = rows.length;
+  const low = rows.filter(r => r.niveau === 'Faible');
+  const joursRemplis = new Set(rows.map(r => r.jour)).size;
+  forces.push(`${total} tranche${total>1?'s':''} documentée${total>1?'s':''} sur 48h${joursRemplis===2?', avec un suivi sur les deux jours':''}. Tenir le suivi est déjà un premier levier.`);
+  if (low.length) {
+    const byH = {}; low.forEach(r => byH[r.heure] = (byH[r.heure]||0)+1);
+    var best = Object.entries(byH).sort((x,y)=>y[1]-x[1])[0][0];
+    forces.push(`${low.length} tranche${low.length>1?'s':''} à faible distraction. Ton créneau le plus concentré : ${best}.`);
+  }
+  const eleves = rows.filter(r => r.niveau === 'Élevé').length;
+  if (total && eleves === 0) forces.push('Aucune tranche à distraction élevée : tu protèges bien ton attention.');
+
+  const agg = {};
+  rows.forEach(r => { if (r.cause && r.cause !== 'Aucune') { const w = WEIGHT[r.niveau]||1; agg[r.cause] = agg[r.cause]||{n:0,w:0}; agg[r.cause].n++; agg[r.cause].w += w; } });
+  const top = Object.entries(agg).sort((x,y)=>y[1].w-x[1].w);
+  top.slice(0,3).forEach(([c,v]) => thieves.push(`${c} : ${v.n} fois sur 48h, impact cumulé ${v.w}/${v.n*3}.`));
+  const pire = rows.filter(r=>r.niveau==='Élevé').map(r=>r.heure);
+  if (pire.length) thieves.push(`Tranches les plus perturbées : ${[...new Set(pire)].join(', ')}.`);
+  if (!thieves.length) thieves.push('Aucun chronophage identifié : renseigne la cause à chaque tranche pour affiner l’analyse.');
+
+  tips.push(best ? `Place ton prochain bloc de 90 minutes sur ${best}, ton créneau le plus concentré : une seule tâche prioritaire, téléphone en mode avion.` : 'Place ton prochain bloc de 90 minutes tôt le matin, une seule tâche prioritaire, téléphone en mode avion.');
+  tips.push(top.length ? `Contre ${top[0][0].toLowerCase()} : ${TACTICS[top[0][0]]}` : 'Avant de démarrer, écris en une phrase ce que tu veux avoir terminé dans 90 minutes.');
+  return {forces, chronophages:thieves, conseils:tips.slice(0,2), source:'Analyse locale de tes données'};
+}
+async function aiAnalysis(rows){
+  const provider = store.get('bas90.provider') || 'local', key = store.get('bas90.key') || '';
+  if (provider === 'local' || !key) return localAnalysis(rows);
+  const prompt = `Tu es coach en productivité pour des femmes entrepreneures. Voici le suivi de ${user} sur 48h (JSON) :\n${JSON.stringify(rows)}\nRéponds uniquement en JSON : {"forces":[2 à 3 phrases],"chronophages":[2 à 3 phrases],"conseils":[exactement 2 conseils concrets pour son prochain bloc de 90 minutes]}. Tutoie-la, sois chaleureuse et précise.`;
+  try {
+    let txt;
+    if (provider === 'gemini') {
+      const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${encodeURIComponent(key)}`, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{responseMimeType:'application/json'}})});
+      if (!r.ok) throw new Error(r.status);
+      txt = (await r.json()).candidates[0].content.parts[0].text;
+    } else {
+      const r = await fetch('https://api.openai.com/v1/chat/completions', {method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+key},body:JSON.stringify({model:'gpt-4o-mini',response_format:{type:'json_object'},messages:[{role:'user',content:prompt}]})});
+      if (!r.ok) throw new Error(r.status);
+      txt = (await r.json()).choices[0].message.content;
+    }
+    const j = JSON.parse(txt.replace(/```json|```/g,'').trim());
+    return {forces:j.forces, chronophages:j.chronophages, conseils:(j.conseils||[]).slice(0,2), source: provider==='gemini'?'Analyse IA (Gemini)':'Analyse IA (OpenAI)'};
+  } catch (e) {
+    const r = localAnalysis(rows); r.source = 'Analyse locale (l’IA n’a pas répondu : vérifie ta clé et ta connexion)'; return r;
+  }
+}
+function openSheet(html){ $('sheet').innerHTML = html; $('modal').classList.remove('hidden'); }
+function closeSheet(){ $('modal').classList.add('hidden'); }
+$('modal').addEventListener('click', e => { if (e.target === $('modal') || e.target.dataset.close !== undefined) closeSheet(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSheet(); });
+
+async function analyze(){
+  store.set(dayKey(user, offset), JSON.stringify(data));
+  const rows = compile();
+  if (!rows.length) { openSheet(`<h3>Rien à analyser</h3><p class="note">Remplis au moins une tranche aujourd’hui ou hier, puis relance l’analyse.</p><button class="btn btn-navy" style="margin-top:18px" data-close>Compris</button>`); return; }
+  openSheet(`<h3>Analyse en cours…</h3><p class="note">Lecture de tes ${rows.length} tranches sur 48h.</p>`);
+  const r = await aiAnalysis(rows);
+  const li = a => (a||[]).map(x => `<li>${esc(x)}</li>`).join('');
+  openSheet(`<h3>Ton diagnostic sur 48h</h3><div class="src">${esc(r.source)}</div>
+    <div class="sec good"><h4>Tes points forts</h4><ul>${li(r.forces)}</ul></div>
+    <div class="sec thief"><h4>Tes voleurs de temps</h4><ul>${li(r.chronophages)}</ul></div>
+    <div class="sec tip"><h4>2 conseils pour ton prochain bloc de 90 minutes</h4><ul>${li(r.conseils)}</ul></div>
+    <button class="btn btn-navy" style="margin-top:22px" data-close>Fermer</button>`);
+}
+
+/* ---------- Réglages IA ---------- */
+function settings(){
+  const p = store.get('bas90.provider') || 'local', k = store.get('bas90.key') || '';
+  openSheet(`<h3>Réglages de l’IA</h3>
+    <label class="lbl" for="prov">Moteur d’analyse</label>
+    <select id="prov"><option value="local" ${p==='local'?'selected':''}>Simulé (sans clé, hors ligne)</option><option value="gemini" ${p==='gemini'?'selected':''}>Google Gemini</option><option value="openai" ${p==='openai'?'selected':''}>OpenAI</option></select>
+    <label class="lbl" for="key">Clé API</label>
+    <input id="key" type="password" class="field" style="color:var(--ink);border-color:var(--line)" value="${esc(k)}" placeholder="Colle ta clé ici" autocomplete="off">
+    <p class="note">La clé reste sur cet appareil. Pour un déploiement auprès de toutes les participantes, passe par un petit serveur qui garde la clé secrète.</p>
+    <button class="btn btn-navy" style="margin-top:16px" id="saveSet">Enregistrer</button>`);
+  $('saveSet').onclick = () => { store.set('bas90.provider', $('prov').value); store.set('bas90.key', $('key').value.trim()); closeSheet(); toast('Réglages enregistrés'); };
+}
+
+/* ---------- Divers ---------- */
+let tt; function toast(m){ const t=$('toast'); t.textContent=m; t.classList.remove('hidden'); clearTimeout(tt); tt=setTimeout(()=>t.classList.add('hidden'),2200); }
+$('loginBtn').onclick = login;
+$('nameInput').addEventListener('keydown', e => { if (e.key==='Enter') login(); });
+$('logoutBtn').onclick = () => { store.del('bas90.user'); user=null; $('nameInput').value=''; showLogin(); };
+$('settingsBtn').onclick = settings;
+$('saveBtn').onclick = save;
+$('aiBtn').onclick = analyze;
+document.querySelectorAll('.tab').forEach(t => t.onclick = () => { store.set(dayKey(user, offset), JSON.stringify(data)); setDay(+t.dataset.off); });
+
+/* ---------- PWA : manifeste intégré + service worker ---------- */
+(function pwa(){
+  try {
+    const icon = "data:image/svg+xml," + encodeURIComponent("<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' fill='#0E1F3F'/><text x='256' y='330' font-family='Georgia,serif' font-size='230' font-weight='700' text-anchor='middle' fill='#C9A24B'>90</text></svg>");
+    const m = {name:'BAS 90 Tracker',short_name:'BAS 90',lang:'fr',start_url:'./',scope:'./',display:'standalone',orientation:'portrait',background_color:'#0E1F3F',theme_color:'#0E1F3F',icons:[{src:icon,sizes:'512x512',type:'image/svg+xml',purpose:'any'}]};
+    const l = document.createElement('link'); l.rel='manifest'; l.href = URL.createObjectURL(new Blob([JSON.stringify(m)],{type:'application/manifest+json'})); document.head.appendChild(l);
+  } catch {}
+  if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(()=>{});
+})();
+
+/* ---------- Démarrage ---------- */
+const saved = store.get('bas90.user');
+if (saved) { user = saved; showApp(); } else showLogin();
+})();
+</script>
+</body>
+</html>
