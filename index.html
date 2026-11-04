@@ -259,15 +259,15 @@ function habitsOf(hist){
   const dc = {};
   hist.forEach(rows => new Set(rows.filter(r=>r.cause&&r.cause!=='Aucune').map(r=>r.cause)).forEach(c => dc[c]=(dc[c]||0)+1));
   const rec = Object.entries(dc).filter(([,k])=>k>=2).sort((x,y)=>y[1]-x[1]);
-  if (rec.length) { info.cause = rec[0][0]; lines.push(`${rec[0][0]} revient sur ${rec[0][1]} jours sur ${N} suivis : c’est une habitude, pas un accident.`); }
+  if (rec.length) { info.cause = rec[0][0]; lines.push(pick([`${rec[0][0]} revient sur ${rec[0][1]} jours sur ${N} suivis : c’est une habitude, pas un accident.`,`${rec[0][0]} apparaît sur ${rec[0][1]} de tes ${N} jours suivis : un schéma s’installe.`,`Sur ${N} jours, ${rec[0][0].toLowerCase()} t’a freinée ${rec[0][1]} fois : c’est ton point d’attention n°1.`],'h1')); }
   const bw = {};
   hist.forEach(rows => new Set(rows.filter(r=>r.niveau==='Faible').map(r=>r.heure)).forEach(h => bw[h]=(bw[h]||0)+1));
   const bb = Object.entries(bw).filter(([,k])=>k>=2).sort((x,y)=>y[1]-x[1]);
-  if (bb.length) { info.best = bb[0][0]; lines.push(`Ton créneau fort : ${bb[0][0]}, à faible distraction sur ${bb[0][1]} jours.`); }
+  if (bb.length) { info.best = bb[0][0]; lines.push(pick([`Ton créneau fort : ${bb[0][0]}, à faible distraction sur ${bb[0][1]} jours.`,`${bb[0][0]} est ton moment de grâce : concentrée sur ${bb[0][1]} jours.`,`Tu performes à ${bb[0][0]} (${bb[0][1]} jours concentrée) : protège ce créneau.`],'h2')); }
   const per = {matin:[], 'après-midi':[], soir:[]}, nom = {matin:'le matin','après-midi':'l’après-midi',soir:'le soir'};
   hist.flat().forEach(r => { if (WEIGHT[r.niveau]) per[r.h<12?'matin':r.h<18?'après-midi':'soir'].push(WEIGHT[r.niveau]); });
   const av = Object.entries(per).filter(([,v])=>v.length>=2).map(([k,v])=>[k,v.reduce((a,b)=>a+b,0)/v.length]).sort((x,y)=>y[1]-x[1]);
-  if (av.length >= 2 && av[0][1]-av[av.length-1][1] >= 0.5) lines.push(`Tes distractions montent ${nom[av[0][0]]} et sont au plus bas ${nom[av[av.length-1][0]]}.`);
+  if (av.length >= 2 && av[0][1]-av[av.length-1][1] >= 0.5) lines.push(pick([`Tes distractions montent ${nom[av[0][0]]} et sont au plus bas ${nom[av[av.length-1][0]]}.`,`Ton énergie se disperse ${nom[av[0][0]]}, alors que ${nom[av[av.length-1][0]]} tu restes bien concentrée.`],'h3'));
   if (!lines.length) lines.push('Pas encore d’habitude nette : tes journées varient. Continue le suivi pour voir un schéma se dessiner.');
   return {lines, info};
 }
@@ -300,6 +300,8 @@ function buildTips(x){
     else if (sa.avg < sh.avg-0.25) c.push({p:1.5, t:'Tu es plus concentrée qu’hier : note en une phrase ce que tu as changé, pour le reproduire demain.'});
   }
   if (rows.filter(r => r.niveau==='Moyen' && !r.cause).length >= 2) c.push({p:2, t:'Plusieurs tranches « moyennes » n’ont pas de cause : indique-la juste après chaque tranche, c’est elle qui rend tes conseils plus précis.'});
+  const defis = ['Défi du jour : commence ta première tranche par la tâche la plus importante, avant tout message.','Défi du jour : note ton objectif de la journée en une phrase avant de commencer.','Défi du jour : fais une vraie pause de 10 minutes entre deux blocs, sans téléphone.','Défi du jour : termine une tâche en suspens avant d’en commencer une nouvelle.','Défi du jour : prépare ta tâche prioritaire de demain avant de finir ta journée.','Défi du jour : mets ton téléphone hors de portée pendant ton prochain bloc de 90 minutes.','Défi du jour : bois un verre d’eau et respire trois fois profondément avant ton bloc.'];
+  c.push({p:2.2, t:pick(defis,'defi')});
   if (rows.length < 5) c.push({p:1, t:'Ton suivi a encore des trous : remplis chaque tranche juste après (2 minutes) pour que l’analyse voie tes vraies habitudes.'});
   c.sort((a,b) => b.p-a.p || (hash(user+a.t)%7)-(hash(user+b.t)%7));
   return [t1, c.length ? c[0].t : pick(['Avant chaque bloc, écris en une phrase ce que tu veux avoir terminé dans 90 minutes.','Termine ta journée en notant une chose qui t’a fait gagner du temps : tu la reproduiras demain.'],'d')];
@@ -309,9 +311,9 @@ function localAnalysis(ctx){
   const sh = dayStats(hier), sa = dayStats(auj), hb = habitsOf(hist);
   const dayLines = s => {
     if (!s.n) return ['Aucune donnée saisie ce jour-là.'];
-    const L = [`${s.n} tranche${s.n>1?'s':''} renseignée${s.n>1?'s':''}${s.avg!==null?`, distraction ${lvName(s.avg)}`:''}.`];
-    if (s.best) L.push(`Moment le plus concentré : ${s.best.heure}.`);
-    if (s.top.length) L.push(`Principal frein : ${s.top[0][0].toLowerCase()} (${s.top[0][1].n} fois).`);
+    const L = [pick([`${s.n} tranche${s.n>1?'s':''} renseignée${s.n>1?'s':''}${s.avg!==null?`, distraction ${lvName(s.avg)}`:''}.`,`Tu as noté ${s.n} tranche${s.n>1?'s':''}${s.avg!==null?` avec une distraction ${lvName(s.avg)}`:''}.`,`Journée suivie sur ${s.n} tranche${s.n>1?'s':''}${s.avg!==null?` : distraction ${lvName(s.avg)}`:''}.`],'j1'+s.n)];
+    if (s.best) L.push(pick([`Moment le plus concentré : ${s.best.heure}.`,`Ton meilleur créneau : ${s.best.heure}.`,`Tu étais au top à ${s.best.heure}.`],'j2'+s.best.heure));
+    if (s.top.length) L.push(pick([`Principal frein : ${s.top[0][0].toLowerCase()} (${s.top[0][1].n} fois).`,`Ce qui t’a le plus ralentie : ${s.top[0][0].toLowerCase()} (${s.top[0][1].n} fois).`,`Point de friction : ${s.top[0][0].toLowerCase()}, ${s.top[0][1].n} fois.`],'j3'+s.top[0][0]));
     return L;
   };
   const jh = dayLines(sh), ja = dayLines(sa);
@@ -321,28 +323,35 @@ function localAnalysis(ctx){
   }
   const rows = [...hier, ...auj], forces = [], thieves = [], tips = [];
   const total = rows.length, low = rows.filter(r => r.niveau==='Faible');
-  forces.push(`${total} tranche${total>1?'s':''} documentée${total>1?'s':''} sur 48h : tenir le suivi est déjà un levier.`);
+  forces.push(pick([`${total} tranche${total>1?'s':''} documentée${total>1?'s':''} sur 48h : tenir le suivi est déjà un levier.`,`Tu as noté ${total} tranche${total>1?'s':''} : la régularité du suivi rend l’analyse utile.`,`${total} tranche${total>1?'s':''} suivie${total>1?'s':''} : tu construis une vraie photo de ton temps.`,`Bravo pour ${total} tranche${total>1?'s':''} renseignée${total>1?'s':''} : ce que tu mesures, tu peux l’améliorer.`],'f1'+total));
   let best = null;
   if (low.length) { const byH = {}; low.forEach(r => byH[r.heure]=(byH[r.heure]||0)+1); best = Object.entries(byH).sort((x,y)=>y[1]-x[1])[0][0]; forces.push(`${low.length} tranche${low.length>1?'s':''} à faible distraction, surtout ${best}.`); }
-  if (total && !rows.some(r => r.niveau==='Élevé')) forces.push('Aucune tranche à distraction élevée : tu protèges bien ton attention.');
+  if (total && !rows.some(r => r.niveau==='Élevé')) forces.push(pick(['Aucune tranche à distraction élevée : tu protèges bien ton attention.','Pas une seule tranche très distraite : ton attention tient bon.','Tu évites les grosses distractions : c’est un vrai point fort.'],'f3'));
   const top = dayStats(rows).top;
-  top.slice(0,3).forEach(([c,v]) => thieves.push(`${c} : ${v.n} fois sur 48h.`));
+  top.slice(0,3).forEach(([c,v],i) => thieves.push(pick([`${c} : ${v.n} fois sur 48h.`,`${c} revient ${v.n} fois sur 48h.`,`Frein repéré : ${c.toLowerCase()}, ${v.n} fois sur 48h.`],'t'+i+c)));
   const pires = [...new Set(rows.filter(r=>r.niveau==='Élevé').map(r=>r.heure))];
-  if (pires.length) thieves.push(`Tranches les plus perturbées : ${pires.join(', ')}.`);
+  if (pires.length) thieves.push(pick([`Tranches les plus perturbées : ${pires.join(', ')}.`,`Tes moments fragiles : ${pires.join(', ')}.`],'t9'));
   if (!thieves.length) thieves.push('Aucun chronophage identifié : renseigne la cause à chaque tranche pour affiner l’analyse.');
   tips.push(...buildTips({rows, hb, best, top, sh, sa}));
-  return {jours:[{titre:'Hier', lignes:jh},{titre:'Aujourd’hui', lignes:ja}], habitudes:hb.lines, forces, chronophages:thieves, conseils:tips, source:'Analyse locale de tes données'};
+  return {jours:[{titre:'Hier', lignes:jh},{titre:'Aujourd’hui', lignes:ja}], habitudes:hb.lines, forces, chronophages:thieves, conseils:tips, source:'Analyse de tes données'};
 }
+// Mettre true pour reconnecter une IA via le relais /api/coach (nécessite des clés dans Vercel)
+const USE_AI = true;
 async function aiAnalysis(ctx){
+  if (!USE_AI) return localAnalysis(ctx);
+  const sig = hash(JSON.stringify([ctx.hier, ctx.auj, ctx.hist.length])), ck = 'bas90.aicache.' + user;
+  try { const c = JSON.parse(store.get(ck)); if (c && c.h === sig && c.r) return c.r; } catch {}
   try {
     const histo = ctx.hist.slice(0,-1).map(rows => ({tranches:rows.length, causes:[...new Set(rows.map(r=>r.cause).filter(Boolean))], niveaux:rows.map(r=>r.niveau).filter(Boolean)}));
     const ac = new AbortController(), to = setTimeout(() => ac.abort(), 25000);
-    const r = await fetch('/api/analyze', {method:'POST', headers:{'Content-Type':'application/json'}, signal:ac.signal, body:JSON.stringify({prenom:user, hier:ctx.hier, auj:ctx.auj, histo})});
+    const r = await fetch('/api/coach', {method:'POST', headers:{'Content-Type':'application/json'}, signal:ac.signal, body:JSON.stringify({prenom:user, hier:ctx.hier, auj:ctx.auj, histo})});
     clearTimeout(to);
     if (!r.ok) { let d = {}; try { d = await r.json(); } catch {} throw new Error([r.status, d.error, d.status].filter(Boolean).join('-')); }
     const j = await r.json();
     if (!j.conseils || !j.conseils.length) throw new Error('vide');
-    return {jours:[{titre:'Hier', lignes:j.hier},{titre:'Aujourd’hui', lignes:j.aujourdhui}], habitudes:j.habitudes, forces:j.forces, chronophages:j.chronophages, conseils:j.conseils, source:'Analyse IA personnalisée'};
+    const res = {jours:[{titre:'Hier', lignes:j.hier},{titre:'Aujourd’hui', lignes:j.aujourdhui}], habitudes:j.habitudes, forces:j.forces, chronophages:j.chronophages, conseils:j.conseils, source:'Analyse IA personnalisée' + (j.fournisseur ? ' (' + j.fournisseur + ')' : '')};
+    store.set(ck, JSON.stringify({h:sig, r:res}));
+    return res;
   } catch (e) {
     const r = localAnalysis(ctx); r.source = 'Analyse intégrée de tes données (IA : ' + (e && e.message ? e.message : 'indisponible') + ')'; return r;
   }
