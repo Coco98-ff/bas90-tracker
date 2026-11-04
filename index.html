@@ -344,7 +344,7 @@ async function aiAnalysis(ctx){
     if (!j.conseils || !j.conseils.length) throw new Error('vide');
     return {jours:[{titre:'Hier', lignes:j.hier},{titre:'Aujourd’hui', lignes:j.aujourdhui}], habitudes:j.habitudes, forces:j.forces, chronophages:j.chronophages, conseils:j.conseils, source:'Analyse IA personnalisée'};
   } catch (e) {
-    const r = localAnalysis(ctx); r.source = 'Analyse personnalisée de tes données'; return r;
+    const r = localAnalysis(ctx); r.source = 'Analyse intégrée de tes données'; return r;
   }
 }
 function openSheet(html){ $('sheet').innerHTML = html; $('modal').classList.remove('hidden'); }
