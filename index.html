@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bloc 90 – Suivi du temps</title>
+<meta name="theme-color" content="#3B1D4F">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Bloc 90">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+:root{
+  --navy:#3B1D4F; --navy-2:#54306E; --ink:#2A1838; --muted:#7A6A86;
+  --gold:#E8A9BC; --gold-soft:#FBEAF0; --mint:#F2C7D4; --mint-deep:#2E8F78;
+  --paper:#FFFFFF; --mist:#F8F4F8; --line:#EADFEA;
+  --low:#2E8F78; --mid:#D9A441; --high:#C2503F;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--mist);color:var(--ink);font-family:'Figtree',system-ui,sans-serif}
+h1,h2,h3,.serif{font-family:'Fraunces',Georgia,serif}
+.wrap{max-width:480px;margin:0 auto;min-height:100vh;background:var(--mist);position:relative}
+.hidden{display:none!important}
+/* Login */
+.login{min-height:100vh;background:var(--navy);color:#fff;padding:calc(env(safe-area-inset-top,0px) + 56px) 28px calc(env(safe-area-inset-bottom,0px) + 32px);display:flex;flex-direction:column}
+.login .mark{font-family:'Fraunces',serif;font-size:76px;line-height:1;color:var(--gold);font-weight:700;letter-spacing:-2px}
+.login h1{font-size:32px;margin:22px 0 6px;font-weight:500}
+.login p{color:#D9C6E3;margin:0 0 36px;line-height:1.5}
+.field{width:100%;padding:16px 18px;border-radius:14px;border:1.5px solid #6E4A88;background:transparent;color:#fff;font-size:17px;font-family:inherit}
+.field::placeholder{color:#A88CBD}
+.field:focus{outline:none;border-color:var(--gold)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.chip{padding:8px 14px;border-radius:999px;border:1px solid #6E4A88;color:#EBDDF2;background:transparent;font-size:14px;font-family:inherit;cursor:pointer}
+.chip:active{background:var(--navy-2)}
+.btn{display:block;width:100%;border:0;border-radius:14px;padding:16px;font-size:16px;font-weight:600;font-family:inherit;cursor:pointer}
+.btn-gold{background:var(--gold);color:var(--navy)}
+.btn-navy{background:var(--navy);color:#fff}
+.btn-mint{background:var(--mint);color:var(--navy)}
+.btn:active{transform:scale(.99)}
+.btn:focus-visible,.chip:focus-visible,select:focus-visible,textarea:focus-visible,input:focus-visible,.icon-btn:focus-visible,.tab:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+/* Header */
+.top{background:var(--navy);color:#fff;padding:calc(env(safe-area-inset-top,0px) + 18px) 20px 22px;border-radius:0 0 26px 26px}
+.top-row{display:flex;justify-content:space-between;align-items:center}
+.top h2{font-size:24px;margin:0;font-weight:500}
+.top small{color:#D9C6E3;font-size:13px}
+.icon-btn{background:transparent;border:1px solid #6E4A88;color:#EBDDF2;border-radius:12px;width:40px;height:40px;font-size:16px;cursor:pointer;margin-left:8px}
+.tabs{display:flex;gap:6px;margin-top:18px;background:var(--navy-2);padding:4px;border-radius:12px}
+.tab{flex:1;border:0;background:transparent;color:#D9C6E3;padding:9px;border-radius:9px;font-size:14px;font-weight:500;font-family:inherit;cursor:pointer}
+.tab[aria-selected=true]{background:var(--gold);color:var(--navy);font-weight:600}
+.progress{margin-top:16px;height:5px;border-radius:5px;background:var(--navy-2);overflow:hidden}
+.progress i{display:block;height:100%;background:var(--mint);width:0;transition:width .3s}
+.pcount{font-size:13px;color:#D9C6E3;margin-top:8px}
+/* Timeline */
+.tag{margin:6px 0 0;font-size:13.5px;line-height:1.4;color:#D9C6E3;max-width:300px}
+.icon-btn.txt{width:auto;padding:0 12px;font-size:13px;font-family:inherit}
+.steps{list-style:none;margin:6px 0 0;padding:0;display:grid;gap:12px}
+.steps li{display:grid;grid-template-columns:34px 1fr;gap:12px;align-items:start;color:#EBDDF2;line-height:1.45;font-size:15px}
+.steps b{display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:var(--gold);color:var(--navy);font-family:'Fraunces',serif;font-size:16px}
+.week{display:flex;align-items:center;gap:4px;margin-top:16px}
+.wk-nav{background:transparent;border:1px solid #6E4A88;color:#EBDDF2;border-radius:10px;width:30px;height:48px;font-size:18px;cursor:pointer;flex:none}
+.days{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;flex:1}
+.dy{border:0;background:var(--navy-2);color:#D9C6E3;border-radius:12px;padding:7px 0 6px;font-family:inherit;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px}
+.dy b{font-size:10.5px;font-weight:500;letter-spacing:.3px}
+.dy span{font-family:'Fraunces',serif;font-size:16px;font-weight:700}
+.dy i{width:6px;height:6px;border-radius:50%;background:transparent}
+.dy i.f{background:var(--mint)}.dy i.r{background:#A88CBD}
+.dy.on{background:var(--gold);color:var(--navy)}.dy.on i.f{background:var(--navy)}.dy.on i.r{background:#6E4A88}
+.dy.today b{text-decoration:underline}.dy:disabled{opacity:.35;cursor:default}
+.rest-row{display:flex;justify-content:space-between;align-items:center;margin-top:14px;font-size:14px;color:#EBDDF2}
+.sw{width:44px;height:26px;border-radius:13px;background:#6E4A88;position:relative;border:0;cursor:pointer;padding:0}
+.sw:after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:left .2s}
+.sw[aria-pressed=true]{background:var(--gold)}.sw[aria-pressed=true]:after{left:21px}
+.restmsg{background:#fff;border:1px dashed #D9C6E3;border-radius:16px;padding:24px;text-align:center;color:var(--muted);line-height:1.5}
+.bar-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.btn-sm{padding:14px 6px;font-size:14.5px}
+.chk{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--line);font-size:15px}
+.chk input{width:20px;height:20px;accent-color:#3B1D4F}
+.share{margin-top:18px;background:#25D366;color:#073B1B}
+.list{padding:22px 16px 230px}
+.slot{display:grid;grid-template-columns:22px 1fr;gap:12px}
+.rail{position:relative}
+.rail:before{content:"";position:absolute;left:10px;top:0;bottom:-18px;width:2px;background:var(--line)}
+.slot:last-child .rail:before{bottom:auto;height:22px}
+.dot{position:absolute;left:3px;top:20px;width:16px;height:16px;border-radius:50%;background:#fff;border:3px solid var(--line);transition:border-color .2s,background .2s}
+.dot[data-level="Faible"]{border-color:var(--low);background:var(--low)}
+.dot[data-level="Moyen"]{border-color:var(--mid);background:var(--mid)}
+.dot[data-level="Élevé"]{border-color:var(--high);background:var(--high)}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:18px}
+.time{font-family:'Fraunces',serif;font-weight:700;font-size:16px;color:var(--navy);margin-bottom:10px}
+.time span{color:var(--muted);font-weight:500;font-size:14px}
+textarea,select{width:100%;border:1px solid var(--line);border-radius:10px;padding:11px 12px;font-size:15px;font-family:inherit;color:var(--ink);background:#fff}
+textarea{resize:none;min-height:46px}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%236A7690' stroke-width='2'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:30px}
+/* Bottom bar */
+.bar{position:fixed;left:0;right:0;bottom:0;z-index:20;padding:12px 16px calc(env(safe-area-inset-bottom,0px) + 12px);background:rgba(248,244,248,.94);backdrop-filter:blur(10px);border-top:1px solid var(--line)}
+.bar-in{max-width:480px;margin:0 auto;display:grid;gap:8px}
+/* Sheet */
+.veil{position:fixed;inset:0;background:rgba(59,29,79,.55);z-index:40;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:#fff;width:100%;max-width:480px;max-height:88vh;overflow:auto;border-radius:24px 24px 0 0;padding:24px 22px calc(env(safe-area-inset-bottom,0px) + 24px);animation:up .25s ease-out}
+@keyframes up{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+.sheet h3{font-size:22px;margin:0 0 4px;color:var(--navy)}
+.sheet .src{font-size:12.5px;color:var(--muted);margin-bottom:18px}
+.sec{margin-top:18px}
+.sec h4{margin:0 0 8px;font-size:15px;font-weight:600;color:var(--navy)}
+.sec ul{margin:0;padding:0;list-style:none}
+.sec li{padding:10px 12px;border-radius:10px;margin-bottom:6px;font-size:14.5px;line-height:1.45}
+.sec.good li{background:#E8F6F1}
+.sec.thief li{background:#FBEDEA}
+.sec.tip li{background:var(--gold-soft)}
+.sec.day li{background:var(--mist)}
+.sec.hab li{background:#F1E8F6}
+.lbl{display:block;font-size:13px;color:var(--muted);margin:14px 0 6px}
+.note{font-size:12.5px;color:var(--muted);line-height:1.5;margin-top:10px}
+.toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 14px);transform:translateX(-50%);background:var(--navy);color:#fff;padding:11px 18px;border-radius:999px;font-size:14px;z-index:60;border:1px solid var(--gold)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- Connexion -->
+  <section id="login" class="login hidden">
+    <img src="icon-192.png" alt="Logo Bloc 90" width="84" height="84" style="border-radius:20px;display:block">
+    <h1>Bloc 90</h1>
+    <p>Note ta journée par tranches de 2 heures et repère ce qui te prend ton temps.</p>
+    <input id="nameInput" class="field" type="text" placeholder="Ton prénom" autocomplete="given-name" autocapitalize="words" aria-label="Prénom">
+    <div class="chips" id="chips"></div>
+    <div style="flex:1"></div>
+    <button id="loginBtn" class="btn btn-gold" style="margin-top:28px">Entrer</button>
+  </section>
+
+  <!-- Page d'accueil (après la saisie du prénom) -->
+  <section id="welcome" class="login hidden">
+    <img src="icon-192.png" alt="" width="72" height="72" style="border-radius:18px;display:block">
+    <h1 style="margin-top:22px">Bienvenue, <span id="wName"></span></h1>
+    <p>Voici ton tracker d’habitudes. Il t’aide à voir où passe ton temps, à repérer tes bonnes habitudes comme celles qui te freinent, et à avancer avec plus de clarté.</p>
+    <ul class="steps">
+      <li><b>1</b><span>Note ta journée par tranches de 2 heures : ce que tu fais, ton niveau de distraction et sa cause.</span></li>
+      <li><b>2</b><span>Observe ton bilan sur 48 heures ou sur la semaine pour découvrir tes habitudes.</span></li>
+      <li><b>3</b><span>Suis les conseils pour réussir ton prochain bloc de 90 minutes.</span></li>
+    </ul>
+    <div style="flex:1"></div>
+    <button id="startBtn" class="btn btn-gold" style="margin-top:28px">Commencer</button>
+  </section>
+
+  <!-- Application -->
+  <section id="app" class="hidden">
+    <header class="top">
+      <div class="top-row">
+        <div>
+          <small id="dateLabel"></small>
+          <h2 id="hello"></h2>
+          <p class="tag">Note tes habitudes pour repérer ce qui te fait perdre du temps.</p>
+        </div>
+        <div>
+          <button class="icon-btn" id="settingsBtn" aria-label="Mes horaires">⚙</button><button class="icon-btn txt" id="logoutBtn" aria-label="Quitter">Quitter</button>
+        </div>
+      </div>
+      <div class="week"><button class="wk-nav" id="wkPrev" aria-label="Semaine précédente">‹</button><div class="days" id="days"></div><button class="wk-nav" id="wkNext" aria-label="Semaine suivante">›</button></div>
+      <div class="rest-row"><span>Jour de repos</span><button class="sw" id="restSw" aria-pressed="false" aria-label="Jour de repos"></button></div>
+      <div class="progress"><i id="pbar"></i></div>
+      <div class="pcount" id="pcount"></div>
+    </header>
+
+    <main class="list" id="list"></main>
+
+    <div class="bar">
+      <div class="bar-in">
+        <button class="btn btn-navy" id="saveBtn">Enregistrer ma journée</button>
+        <div class="bar-row"><button class="btn btn-mint btn-sm" id="aiBtn">Analyser mes 48h</button><button class="btn btn-gold btn-sm" id="weekBtn">Bilan de la semaine</button></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div id="modal" class="veil hidden" role="dialog" aria-modal="true"><div class="sheet" id="sheet"></div></div>
+<div id="toast" class="toast hidden" role="status"></div>
+
+<script>
+(() => {
+'use strict';
+
+/* ---------- Configuration ---------- */
+const PRENOMS = ['Madina','Emilia','Axou','Murielle','Johane','Angemichelle','Anaïs'];
+const SLOTS = [[6,8],[8,10],[10,12],[12,14],[14,16],[16,18],[18,20],[20,22],[22,23]];
+const LEVELS = ['Faible','Moyen','Élevé'];
+const WEIGHT = {'Faible':1,'Moyen':2,'Élevé':3};
+const CAUSES = ['Réseaux sociaux','Procrastination','Appels','Messages WhatsApp','Interruptions (foyer, famille)','Fatigue','Perfectionnisme','Imprévus clients','Aucune'];
+const TACTICS = {
+  'Réseaux sociaux':['Mets ton téléphone dans une autre pièce pendant le bloc et offre-toi 10 minutes de réseaux à la fin.','Désinstalle ou masque les applications de réseaux sur ton écran principal pendant le bloc, et ouvre-les seulement à l’heure choisie.','Utilise un minuteur de 25 minutes : tu ne regardes ton téléphone qu’entre deux minuteurs.'],
+  'Procrastination':['Commence par une version de 10 minutes de la tâche la plus redoutée : l’élan vient après le démarrage.','Découpe la tâche en trois mini-étapes et ne fais que la première, sans te demander la suite.','Dis à une personne de confiance ce que tu livres à la fin du bloc : l’engagement aide à démarrer.'],
+  'Appels':['Préviens ton entourage de ta plage injoignable et regroupe les rappels dans un seul créneau de 30 minutes.','Active le mode « Ne pas déranger » avec seulement quelques contacts autorisés pendant le bloc.','Programme un créneau d’appels fixe chaque jour : tout le monde apprend à t’appeler à cette heure.'],
+  'Messages WhatsApp':['Coupe les notifications WhatsApp pendant 90 minutes et réponds à tout en une seule fois après.','Mets WhatsApp en silencieux et écris un message d’absence qui indique l’heure de ta réponse.','Ouvre WhatsApp deux fois par jour à heure fixe, et pas en réaction à chaque notification.'],
+  'Interruptions (foyer, famille)':['Annonce ton horaire de travail à ton foyer et prépare ce dont tu as besoin avant de t’isoler.','Affiche un signe simple sur ta porte ou ta table pour dire « bloc en cours, retour dans 90 minutes ».','Place ton bloc avant le réveil de la maison ou après le coucher, quand les sollicitations sont rares.'],
+  'Fatigue':['Garde pour ce bloc une tâche légère, fais une pause de 5 minutes debout et bois un verre d’eau avant de commencer.','Déplace ton bloc le plus exigeant à ton moment d’énergie et garde la fin de journée pour l’administratif.','Fais une courte marche de 5 minutes avant de commencer : elle relance la concentration mieux qu’un café.'],
+  'Perfectionnisme':['Fixe-toi un livrable « assez bien » avec une durée limite, puis relis-le une seule fois.','Termine une première version moche en 30 minutes, puis améliore-la avec le temps qui reste.','Décide à l’avance de ce qui est « fini » en trois critères, et arrête-toi quand ils sont remplis.'],
+  'Imprévus clients':['Réserve un créneau d’urgences dans ta journée pour que les imprévus ne mangent pas tes blocs de travail.','Annonce à tes clients tes heures de réponse : ils s’adaptent vite quand le cadre est clair.','Garde 30 minutes libres après chaque bloc pour absorber les demandes arrivées pendant ce temps.']
+};
+
+/* ---------- Stockage ---------- */
+const mem = {};
+const store = {
+  get(k){ try { return localStorage.getItem(k); } catch { return mem[k] ?? null; } },
+  set(k,v){ try { localStorage.setItem(k,v); } catch { mem[k]=v; } },
+  del(k){ try { localStorage.removeItem(k); } catch { delete mem[k]; } }
+};
+const $ = id => document.getElementById(id);
+const pad = n => String(n).padStart(2,'0');
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const cap = s => s.trim().charAt(0).toUpperCase() + s.trim().slice(1);
+const dateKey = off => { const d = new Date(); d.setDate(d.getDate()+off); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; };
+const dayKey = (u,off) => `bas90.${u.toLowerCase()}.${dateKey(off)}`;
+const loadDay = (u,off) => { try { return JSON.parse(store.get(dayKey(u,off))) || {}; } catch { return {}; } };
+
+let user = null, offset = 0, data = {};
+
+/* ---------- Connexion ---------- */
+function showLogin(){
+  $('app').classList.add('hidden'); $('welcome').classList.add('hidden'); $('login').classList.remove('hidden');
+  $('chips').innerHTML = PRENOMS.map(p => `<button class="chip" type="button">${esc(p)}</button>`).join('');
+  $('chips').onclick = e => { if (e.target.classList.contains('chip')) { $('nameInput').value = e.target.textContent; login(); } };
+}
+function login(){
+  const v = $('nameInput').value.trim();
+  if (v.length < 2) { toast('Entre ton prénom pour continuer.'); return; }
+  user = cap(v); store.set('bas90.user', user); showWelcome();
+}
+let weekOff = 0, restSet = false;
+const DAYS3 = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
+const FULL = ['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'];
+const todayIdx = () => (new Date().getDay()+6)%7;
+const slotPrefKey = () => 'bas90.slots.' + user.toLowerCase();
+function activeSlots(){ try { const a = JSON.parse(store.get(slotPrefKey())); if (Array.isArray(a) && a.length) return a; } catch {} return SLOTS.map((_,i)=>i); }
+function persist(){ store.set(dayKey(user, offset), JSON.stringify(data)); }
+function showWelcome(){
+  $('login').classList.add('hidden'); $('app').classList.add('hidden'); $('welcome').classList.remove('hidden');
+  $('wName').textContent = user;
+}
+function showApp(){
+  $('welcome').classList.add('hidden');
+  $('login').classList.add('hidden'); $('app').classList.remove('hidden');
+  $('hello').textContent = `Bonjour, ${user}`;
+  setDay(0);
+}
+
+/* ---------- Tracking ---------- */
+function setDay(off){
+  offset = off; data = loadDay(user, off);
+  weekOff = Math.floor((off + todayIdx())/7);
+  const d = new Date(); d.setDate(d.getDate()+off);
+  $('dateLabel').textContent = d.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
+  render(); renderWeek();
+}
+function renderWeek(){
+  const m = -todayIdx() + 7*weekOff;
+  $('days').innerHTML = DAYS3.map((n,i) => {
+    const off = m+i, d = new Date(); d.setDate(d.getDate()+off);
+    const day = off===offset ? data : loadDay(user, off), has = rowsOf(day).length>0;
+    const cls = ['dy', off===offset?'on':'', off===0?'today':''].join(' ');
+    return `<button class="${cls}" data-off="${off}" ${off>0?'disabled':''} aria-label="${n} ${d.getDate()}"><b>${n.toUpperCase()}</b><span>${d.getDate()}</span><i class="${day._rest?'r':has?'f':''}"></i></button>`;
+  }).join('');
+  $('wkNext').disabled = weekOff>=0; $('wkNext').style.opacity = weekOff>=0 ? .35 : 1;
+}
+function render(){
+  restSet = !!data._rest;
+  $('restSw').setAttribute('aria-pressed', String(restSet));
+  if (restSet) { $('list').innerHTML = '<div class="restmsg">Jour de repos.<br>Il ne compte pas comme manquant et ne casse pas ta série.</div>'; progress(); return; }
+  const act = activeSlots();
+  $('list').innerHTML = SLOTS.map(([a,b],i) => {
+    const s = data[i] || {};
+    if (!act.includes(i) && !(s.activity||'').trim()) return '';
+    return `<div class="slot"><div class="rail"><span class="dot" data-level="${esc(s.level||'')}" id="dot${i}"></span></div>
+    <div class="card">
+      <div class="time">${pad(a)}h00 <span>à ${pad(b)}h00</span></div>
+      <textarea rows="2" data-i="${i}" data-f="activity" placeholder="Qu’as-tu fait ?" aria-label="Activité ${pad(a)}h-${pad(b)}h">${esc(s.activity||'')}</textarea>
+      <div class="pair">
+        <select data-i="${i}" data-f="level" aria-label="Niveau de distraction"><option value="">Distraction</option>${LEVELS.map(l=>`<option ${s.level===l?'selected':''}>${l}</option>`).join('')}</select>
+        <select data-i="${i}" data-f="cause" aria-label="Cause"><option value="">Cause</option>${CAUSES.map(c=>`<option ${s.cause===c?'selected':''}>${esc(c)}</option>`).join('')}</select>
+      </div>
+    </div></div>`;
+  }).join('');
+  progress();
+}
+function streak(){
+  let n = 0;
+  for (let o = 0; o >= -365; o--) {
+    const d = o===offset ? data : loadDay(user, o);
+    if (d._rest) continue;
+    if (rowsOf(d).length) n++; else if (o!==0) break;
+  }
+  return n;
+}
+function progress(){
+  const n = SLOTS.filter((_,i) => (data[i]?.activity||'').trim()).length;
+  const tot = Math.max(activeSlots().length, n);
+  $('pbar').style.width = restSet ? '100%' : (n/tot*100)+'%';
+  const st = streak();
+  $('pcount').textContent = (restSet ? 'Jour de repos' : `${n} tranche${n>1?'s':''} sur ${tot} remplie${n>1?'s':''}`) + (st>0 ? ` · Série : ${st} jour${st>1?'s':''}` : '');
+}
+$('list').addEventListener('input', e => {
+  const t = e.target, i = t.dataset.i; if (i === undefined) return;
+  data[i] = data[i] || {}; data[i][t.dataset.f] = t.value;
+  if (t.dataset.f === 'level' && $('dot'+i)) $('dot'+i).dataset.level = t.value;
+  progress(); persist(); renderWeek();
+});
+function save(){ persist(); renderWeek(); toast('Journée enregistrée'); }
+function toggleRest(){ if (data._rest) delete data._rest; else data._rest = true; persist(); render(); renderWeek(); }
+function settings(){
+  const act = activeSlots();
+  openSheet(`<h3>Mes horaires</h3><p class="note">Choisis les tranches que tu veux suivre. Les autres sont masquées (elles réapparaissent si tu y écris quelque chose).</p>` + SLOTS.map(([a,b],i) => `<label class="chk"><input type="checkbox" data-s="${i}" ${act.includes(i)?'checked':''}> ${pad(a)}h00 – ${pad(b)}h00</label>`).join('') + `<button class="btn btn-navy" style="margin-top:18px" id="saveSlots">Enregistrer</button>`);
+  $('saveSlots').onclick = () => {
+    const sel = [...document.querySelectorAll('#sheet [data-s]')].filter(c => c.checked).map(c => +c.dataset.s);
+    if (!sel.length) { toast('Garde au moins une tranche.'); return; }
+    store.set(slotPrefKey(), JSON.stringify(sel)); closeSheet(); render(); toast('Horaires enregistrés');
+  };
+}
+
+/* ---------- Analyse ---------- */
+const slotLabel = (a,b) => `${pad(a)}h-${pad(b)}h`;
+function rowsOf(d){
+  const out = [];
+  SLOTS.forEach(([a,b],i) => { const s = d[i]; if (s && (s.activity||'').trim()) out.push({heure:slotLabel(a,b), h:a, activite:s.activity.trim(), niveau:s.level||'', cause:s.cause||''}); });
+  return out;
+}
+const lvName = m => m<1.5 ? 'faible' : m<2.3 ? 'moyenne' : 'élevée';
+function dayStats(rows){
+  const lv = rows.filter(r => WEIGHT[r.niveau]);
+  const avg = lv.length ? lv.reduce((t,r)=>t+WEIGHT[r.niveau],0)/lv.length : null;
+  const th = {};
+  rows.forEach(r => { if (r.cause && r.cause!=='Aucune') { th[r.cause] = th[r.cause]||{n:0,w:0}; th[r.cause].n++; th[r.cause].w += WEIGHT[r.niveau]||1; } });
+  return {n:rows.length, avg, top:Object.entries(th).sort((x,y)=>y[1].w-x[1].w), best:rows.find(r=>r.niveau==='Faible'), worst:rows.filter(r=>r.niveau==='Élevé')};
+}
+function habitsOf(hist){
+  const N = hist.length, lines = [], info = {};
+  if (N < 2) return {lines:['Continue le suivi quelques jours : tes habitudes apparaîtront dès 2 jours renseignés.'], info};
+  const dc = {};
+  hist.forEach(rows => new Set(rows.filter(r=>r.cause&&r.cause!=='Aucune').map(r=>r.cause)).forEach(c => dc[c]=(dc[c]||0)+1));
+  const rec = Object.entries(dc).filter(([,k])=>k>=2).sort((x,y)=>y[1]-x[1]);
+  if (rec.length) { info.cause = rec[0][0]; lines.push(pick([`${rec[0][0]} revient sur ${rec[0][1]} jours sur ${N} suivis : c’est une habitude, pas un accident.`,`${rec[0][0]} apparaît sur ${rec[0][1]} de tes ${N} jours suivis : un schéma s’installe.`,`Sur ${N} jours, ${lcc(rec[0][0])} t’a freinée ${rec[0][1]} fois : c’est ton point d’attention n°1.`],'h1')); }
+  const bw = {};
+  hist.forEach(rows => new Set(rows.filter(r=>r.niveau==='Faible').map(r=>r.heure)).forEach(h => bw[h]=(bw[h]||0)+1));
+  const bb = Object.entries(bw).filter(([,k])=>k>=2).sort((x,y)=>y[1]-x[1]);
+  if (bb.length) { info.best = bb[0][0]; lines.push(pick([`Ton créneau fort : ${bb[0][0]}, à faible distraction sur ${bb[0][1]} jours.`,`${bb[0][0]} est ton moment de grâce : concentrée sur ${bb[0][1]} jours.`,`Tu performes à ${bb[0][0]} (${bb[0][1]} jours concentrée) : protège ce créneau.`],'h2')); }
+  const per = {matin:[], 'après-midi':[], soir:[]}, nom = {matin:'le matin','après-midi':'l’après-midi',soir:'le soir'};
+  hist.flat().forEach(r => { if (WEIGHT[r.niveau]) per[r.h<12?'matin':r.h<18?'après-midi':'soir'].push(WEIGHT[r.niveau]); });
+  const av = Object.entries(per).filter(([,v])=>v.length>=2).map(([k,v])=>[k,v.reduce((a,b)=>a+b,0)/v.length]).sort((x,y)=>y[1]-x[1]);
+  if (av.length >= 2 && av[0][1]-av[av.length-1][1] >= 0.5) lines.push(pick([`Tes distractions montent ${nom[av[0][0]]} et sont au plus bas ${nom[av[av.length-1][0]]}.`,`Ton énergie se disperse ${nom[av[0][0]]}, alors que ${nom[av[av.length-1][0]]} tu restes bien concentrée.`],'h3'));
+  if (!lines.length) lines.push('Pas encore d’habitude nette : tes journées varient. Continue le suivi pour voir un schéma se dessiner.');
+  return {lines, info};
+}
+const short = t => { t = t.replace(/\s+/g,' ').trim(); return t.length>42 ? t.slice(0,40).trim()+'…' : t; };
+const hash = t => [...t].reduce((h,c) => (h*31+c.charCodeAt(0))>>>0, 7);
+const lcc = c => c.toLowerCase().replace('whatsapp','WhatsApp');
+const pick = (arr,k) => arr[hash(user+dateKey(0)+k) % arr.length];
+function buildTips(x){
+  const {rows, hb, best, top, sh, sa} = x;
+  const slot = hb.info.best || best;
+  const ref = rows.find(r => r.heure===slot && r.niveau==='Faible');
+  const t1 = (slot && ref) ? pick([
+    `Ton prochain bloc de 90 minutes : ${slot}. Tu y étais très concentrée sur « ${short(ref.activite)} » : refais les mêmes conditions et garde ta tâche la plus importante pour ce bloc.`,
+    `${slot} est ton moment fort (« ${short(ref.activite)} »). Réserve-le à une seule tâche qui compte, et prépare dès la veille ce qu’il te faut pour démarrer sans chercher.`,
+    `Pour ton prochain bloc de 90 minutes, reprends ${slot} : « ${short(ref.activite)} » s’y est bien passé. Écris avant de commencer ce que tu veux avoir terminé à la fin.`
+  ],'b') : pick([
+    'Choisis demain ton créneau le plus calme pour un bloc de 90 minutes : une seule tâche, téléphone en mode avion, et note à la fin ce qui t’a le mieux aidée.',
+    'Pour ton prochain bloc de 90 minutes, écris d’abord en une phrase le résultat attendu, puis lance un minuteur et ne fais que cette tâche.',
+    'Essaie un bloc de 90 minutes tôt le matin : une seule tâche prioritaire, pas de messages, et une vraie pause de 10 minutes ensuite.'
+  ],'b0');
+  const c = [];
+  const cause = hb.info.cause || (top[0] && top[0][0]);
+  if (cause && TACTICS[cause]) {
+    const w = rows.filter(r => r.cause===cause).sort((a,b) => (WEIGHT[b.niveau]||1)-(WEIGHT[a.niveau]||1))[0];
+    c.push({p:3+(hb.info.cause?1:0), t:`${cause} t’a coupée à ${w.heure} pendant « ${short(w.activite)} »${hb.info.cause?', et ce n’est pas la première fois':''}. ${pick(TACTICS[cause],'c')}`});
+  }
+  const pires = [...new Set(rows.filter(r => r.niveau==='Élevé').map(r => r.heure))];
+  if (pires.length) c.push({p:2, t:`Tes tranches les plus perturbées (${pires.join(', ')}) demandent un autre rythme : glisse 10 minutes de vraie pause avant, et garde ces horaires pour les tâches légères comme les messages ou l’administratif.`});
+  if (sh.n && sa.n && sh.avg!==null && sa.avg!==null) {
+    if (sa.avg > sh.avg+0.25) c.push({p:2.5, t:'Ta distraction a monté depuis hier : repère ce qui a changé (horaires, lieu, sollicitations) et retrouve les conditions d’hier pour ton prochain bloc.'});
+    else if (sa.avg < sh.avg-0.25) c.push({p:1.5, t:'Tu es plus concentrée qu’hier : note en une phrase ce que tu as changé, pour le reproduire demain.'});
+  }
+  if (rows.filter(r => r.niveau==='Moyen' && !r.cause).length >= 2) c.push({p:2, t:'Plusieurs tranches « moyennes » n’ont pas de cause : indique-la juste après chaque tranche, c’est elle qui rend tes conseils plus précis.'});
+  const defis = ['Défi du jour : commence ta première tranche par la tâche la plus importante, avant tout message.','Défi du jour : note ton objectif de la journée en une phrase avant de commencer.','Défi du jour : fais une vraie pause de 10 minutes entre deux blocs, sans téléphone.','Défi du jour : termine une tâche en suspens avant d’en commencer une nouvelle.','Défi du jour : prépare ta tâche prioritaire de demain avant de finir ta journée.','Défi du jour : mets ton téléphone hors de portée pendant ton prochain bloc de 90 minutes.','Défi du jour : bois un verre d’eau et respire trois fois profondément avant ton bloc.'];
+  c.push({p:2.2, t:pick(defis,'defi')});
+  if (rows.length < 5) c.push({p:1, t:'Ton suivi a encore des trous : remplis chaque tranche juste après (2 minutes) pour que l’analyse voie tes vraies habitudes.'});
+  c.sort((a,b) => b.p-a.p || (hash(user+a.t)%7)-(hash(user+b.t)%7));
+  return [t1, c.length ? c[0].t : pick(['Avant chaque bloc, écris en une phrase ce que tu veux avoir terminé dans 90 minutes.','Termine ta journée en notant une chose qui t’a fait gagner du temps : tu la reproduiras demain.'],'d')];
+}
+function localAnalysis(ctx){
+  const {hier, auj, hist} = ctx;
+  const sh = dayStats(hier), sa = dayStats(auj), hb = habitsOf(hist);
+  const dayLines = s => {
+    if (!s.n) return ['Aucune donnée saisie ce jour-là.'];
+    const L = [pick([`${s.n} tranche${s.n>1?'s':''} renseignée${s.n>1?'s':''}${s.avg!==null?`, distraction ${lvName(s.avg)}`:''}.`,`Tu as noté ${s.n} tranche${s.n>1?'s':''}${s.avg!==null?` avec une distraction ${lvName(s.avg)}`:''}.`,`Journée suivie sur ${s.n} tranche${s.n>1?'s':''}${s.avg!==null?` : distraction ${lvName(s.avg)}`:''}.`],'j1'+s.n)];
+    if (s.best) L.push(pick([`Moment le plus concentré : ${s.best.heure}.`,`Ton meilleur créneau : ${s.best.heure}.`,`Tu étais au top à ${s.best.heure}.`],'j2'+s.best.heure));
+    if (s.top.length) L.push(pick([`Principal frein : ${lcc(s.top[0][0])} (${s.top[0][1].n} fois).`,`Ce qui t’a le plus ralentie : ${lcc(s.top[0][0])} (${s.top[0][1].n} fois).`,`Point de friction : ${lcc(s.top[0][0])}, ${s.top[0][1].n} fois.`],'j3'+s.top[0][0]));
+    return L;
+  };
+  const jh = dayLines(sh), ja = dayLines(sa);
+  if (sh.n && sa.n) {
+    if (sh.avg!==null && sa.avg!==null) { const d = sa.avg-sh.avg; ja.push(Math.abs(d)<0.25 ? 'Distraction stable par rapport à hier.' : d<0 ? 'Tu es moins distraite qu’hier : garde ce qui a fonctionné.' : 'Tu es plus distraite qu’hier : repère ce qui a changé dans ta journée.'); }
+    if (sh.top[0] && sa.top[0]) ja.push(sh.top[0][0]!==sa.top[0][0] ? `Le frein change : ${lcc(sh.top[0][0])} hier, ${lcc(sa.top[0][0])} aujourd’hui.` : `Même frein deux jours de suite : ${lcc(sa.top[0][0])}.`);
+  }
+  const rows = [...hier, ...auj], forces = [], thieves = [], tips = [];
+  const total = rows.length, low = rows.filter(r => r.niveau==='Faible');
+  forces.push(pick([`${total} tranche${total>1?'s':''} documentée${total>1?'s':''} sur 48h : tenir le suivi est déjà un levier.`,`Tu as noté ${total} tranche${total>1?'s':''} : la régularité du suivi rend l’analyse utile.`,`${total} tranche${total>1?'s':''} suivie${total>1?'s':''} : tu construis une vraie photo de ton temps.`,`Bravo pour ${total} tranche${total>1?'s':''} renseignée${total>1?'s':''} : ce que tu mesures, tu peux l’améliorer.`],'f1'+total));
+  let best = null;
+  if (low.length) { const byH = {}; low.forEach(r => byH[r.heure]=(byH[r.heure]||0)+1); best = Object.entries(byH).sort((x,y)=>y[1]-x[1])[0][0]; forces.push(`${low.length} tranche${low.length>1?'s':''} à faible distraction, surtout ${best}.`); }
+  if (total && !rows.some(r => r.niveau==='Élevé')) forces.push(pick(['Aucune tranche à distraction élevée : tu protèges bien ton attention.','Pas une seule tranche très distraite : ton attention tient bon.','Tu évites les grosses distractions : c’est un vrai point fort.'],'f3'));
+  const top = dayStats(rows).top;
+  top.slice(0,3).forEach(([c,v],i) => thieves.push(pick([`${c} : ${v.n} fois sur 48h.`,`${c} revient ${v.n} fois sur 48h.`,`Frein repéré : ${lcc(c)}, ${v.n} fois sur 48h.`],'t'+i+c)));
+  const pires = [...new Set(rows.filter(r=>r.niveau==='Élevé').map(r=>r.heure))];
+  if (pires.length) thieves.push(pick([`Tranches les plus perturbées : ${pires.join(', ')}.`,`Tes moments fragiles : ${pires.join(', ')}.`],'t9'));
+  if (!thieves.length) thieves.push('Aucun chronophage identifié : renseigne la cause à chaque tranche pour affiner l’analyse.');
+  tips.push(...buildTips({rows, hb, best, top, sh, sa}));
+  return {jours:[{titre:'Hier', lignes:jh},{titre:'Aujourd’hui', lignes:ja}], habitudes:hb.lines, forces, chronophages:thieves, conseils:tips, source:'Analyse de tes données'};
+}
+// Mettre true pour reconnecter une IA via le relais /api/coach (nécessite des clés dans Vercel)
+const USE_AI = true;
+async function aiAnalysis(ctx){
+  if (!USE_AI) return localAnalysis(ctx);
+  const sig = hash(JSON.stringify([ctx.hier, ctx.auj, ctx.hist.length])), ck = 'bas90.aicache.' + user;
+  try { const c = JSON.parse(store.get(ck)); if (c && c.h === sig && c.r) return c.r; } catch {}
+  try {
+    const histo = ctx.hist.slice(0,-1).map(rows => ({tranches:rows.length, causes:[...new Set(rows.map(r=>r.cause).filter(Boolean))], niveaux:rows.map(r=>r.niveau).filter(Boolean)}));
+    const ac = new AbortController(), to = setTimeout(() => ac.abort(), 25000);
+    const r = await fetch('/api/coach', {method:'POST', headers:{'Content-Type':'application/json'}, signal:ac.signal, body:JSON.stringify({prenom:user, hier:ctx.hier, auj:ctx.auj, histo})});
+    clearTimeout(to);
+    if (!r.ok) { let d = {}; try { d = await r.json(); } catch {} throw new Error([r.status, d.error, d.status].filter(Boolean).join('-')); }
+    const j = await r.json();
+    if (!j.conseils || !j.conseils.length) throw new Error('vide');
+    const res = {jours:[{titre:'Hier', lignes:j.hier},{titre:'Aujourd’hui', lignes:j.aujourdhui}], habitudes:j.habitudes, forces:j.forces, chronophages:j.chronophages, conseils:j.conseils, source:'Analyse IA personnalisée' + (j.fournisseur ? ' (' + j.fournisseur + ')' : '')};
+    store.set(ck, JSON.stringify({h:sig, r:res}));
+    return res;
+  } catch (e) {
+    const r = localAnalysis(ctx); r.source = 'Analyse de tes données'; return r;
+  }
+}
+function openSheet(html){ $('sheet').innerHTML = html; $('modal').classList.remove('hidden'); }
+function closeSheet(){ $('modal').classList.add('hidden'); }
+$('modal').addEventListener('click', e => { if (e.target === $('modal') || e.target.dataset.close !== undefined) closeSheet(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSheet(); });
+
+async function analyze(){
+  store.set(dayKey(user, offset), JSON.stringify(data));
+  const hier = rowsOf(loadDay(user,-1)), auj = rowsOf(loadDay(user,0));
+  const hist = []; for (let o=-13; o<=0; o++) { const r = rowsOf(loadDay(user,o)); if (r.length) hist.push(r); }
+  if (!hier.length && !auj.length) { openSheet(`<h3>Rien à analyser</h3><p class="note">Remplis au moins une tranche aujourd’hui ou hier, puis relance l’analyse.</p><button class="btn btn-navy" style="margin-top:18px" data-close>Compris</button>`); return; }
+  openSheet(`<h3>Analyse en cours…</h3><p class="note">Lecture de tes journées d’hier et d’aujourd’hui.</p>`);
+  const r = await aiAnalysis({hier, auj, hist});
+  const li = a => (a||[]).map(x => `<li>${esc(x)}</li>`).join('');
+  const jours = (r.jours||[]).map(j => `<div class="sec day"><h4>${esc(j.titre)}</h4><ul>${li(j.lignes)}</ul></div>`).join('');
+  openSheet(`<h3>Ton diagnostic sur 48h</h3><div class="src">${esc(r.source)}</div>
+    ${jours}
+    <div class="sec hab"><h4>Tes habitudes</h4><ul>${li(r.habitudes)}</ul></div>
+    <div class="sec good"><h4>Tes points forts</h4><ul>${li(r.forces)}</ul></div>
+    <div class="sec thief"><h4>Tes voleurs de temps</h4><ul>${li(r.chronophages)}</ul></div>
+    <div class="sec tip"><h4>2 conseils pour ton prochain bloc de 90 minutes</h4><ul>${li(r.conseils)}</ul></div>
+    <button class="btn btn-navy" style="margin-top:22px" data-close>Fermer</button>`);
+}
+
+/* ---------- Bilan de la semaine ---------- */
+function weekData(w){
+  const m = -todayIdx() + 7*w, out = [];
+  for (let i=0;i<7;i++) { const off = m+i; if (off>0) break; const d = off===offset ? data : loadDay(user, off); out.push({i, off, rest:!!d._rest, rows:rowsOf(d)}); }
+  return out;
+}
+function weekBilan(){
+  persist();
+  const cur = weekData(weekOff), prev = weekData(weekOff-1);
+  const suivis = cur.filter(d => !d.rest), remplis = suivis.filter(d => d.rows.length), reposN = cur.length - suivis.length;
+  if (!remplis.length) { openSheet(`<h3>Bilan de la semaine</h3><p class="note">Remplis au moins une tranche cette semaine, puis reviens voir ton bilan.</p><button class="btn btn-navy" style="margin-top:18px" data-close>Compris</button>`); return; }
+  const stats = cur.map(d => ({...d, s: dayStats(d.rows)}));
+  const all = cur.flatMap(d => d.rows), S = dayStats(all);
+  const plur = (n,w) => `${n} ${w}${n>1?'s':''}`;
+  const reg = [`${plur(remplis.length,'jour')} renseigné${remplis.length>1?'s':''} sur ${suivis.length}${reposN?`, plus ${plur(reposN,'jour')} de repos`:''}.`];
+  const st = streak(); if (st>0) reg.push(`Série en cours : ${plur(st,'jour')} d’affilée.`);
+  const pj = prev.filter(d => !d.rest && d.rows.length);
+  if (pj.length) {
+    const rc = remplis.length/suivis.length, rp = pj.length/Math.max(1, prev.filter(d => !d.rest).length);
+    reg.push(rc>rp+0.1 ? 'Tu es plus régulière que la semaine dernière.' : rc<rp-0.1 ? 'Moins régulière que la semaine dernière : un petit effort sur le suivi ?' : 'Même régularité que la semaine dernière.');
+    const a = dayStats(prev.flatMap(d => d.rows));
+    if (a.avg!==null && S.avg!==null && Math.abs(S.avg-a.avg)>=0.25) reg.push(S.avg<a.avg ? 'Distraction en baisse par rapport à la semaine dernière.' : 'Distraction en hausse par rapport à la semaine dernière.');
+  }
+  const jours = stats.map(d => `${FULL[d.i]} : ` + (d.rest ? 'repos.' : !d.rows.length ? 'non renseigné.' : `${plur(d.s.n,'tranche')}${d.s.avg!==null?`, distraction ${lvName(d.s.avg)}`:''}${d.s.top[0]?`, frein : ${lcc(d.s.top[0][0])}`:''}.`));
+  const ev = stats.filter(d => d.rows.length>=2 && d.s.avg!==null), faits = [];
+  if (ev.length>=2) {
+    const bj = [...ev].sort((x,y) => x.s.avg-y.s.avg)[0], wj = [...ev].sort((x,y) => y.s.avg-x.s.avg)[0];
+    faits.push(`Ton meilleur jour : ${FULL[bj.i].toLowerCase()}.`);
+    if (wj.i!==bj.i && wj.s.avg>bj.s.avg) faits.push(`Ton jour le plus dispersé : ${FULL[wj.i].toLowerCase()}.`);
+  }
+  const hb = habitsOf(cur.map(d => d.rows).filter(r => r.length));
+  const low = all.filter(r => r.niveau==='Faible'), byH = {}; low.forEach(r => byH[r.heure] = (byH[r.heure]||0)+1);
+  const best = low.length ? Object.entries(byH).sort((x,y) => y[1]-x[1])[0][0] : null;
+  const forces = [`${plur(all.length,'tranche')} documentée${all.length>1?'s':''} cette semaine.`];
+  if (low.length) forces.push(`${plur(low.length,'tranche')} à faible distraction${best?`, surtout ${best}`:''}.`);
+  const thieves = S.top.slice(0,3).map(([c,v]) => `${c} : ${v.n} fois cette semaine.`);
+  if (!thieves.length) thieves.push('Aucun chronophage identifié : renseigne la cause à chaque tranche pour affiner le bilan.');
+  const conseils = buildTips({rows:all, hb, best, top:S.top, sh:{n:0}, sa:{n:0}});
+  const d1 = new Date(); d1.setDate(d1.getDate() + (-todayIdx() + 7*weekOff)); const d2 = new Date(d1); d2.setDate(d2.getDate()+6);
+  const fmt = d => d.toLocaleDateString('fr-FR',{day:'numeric',month:'long'});
+  const label = `Semaine du ${fmt(d1)} au ${fmt(d2)}`;
+  const sec = (cls,t,l) => l.length ? `<div class="sec ${cls}"><h4>${t}</h4><ul>${l.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>` : '';
+  const text = [`Bloc 90 – Mon bilan de la semaine (${user})`, label, reg[0], ...(st>0?[`Série : ${plur(st,'jour')}`]:[]), ...faits, ...(S.top[0]?[`Principal frein : ${lcc(S.top[0][0])}`]:[]), ...(best?[`Créneau fort : ${best}`]:[]), `Conseil : ${conseils[0]}`].join('\n');
+  openSheet(`<h3>Bilan de ma semaine</h3><div class="src">${esc(label)}</div>` + sec('day','Régularité',reg) + sec('day','Jour par jour',jours) + sec('hab','Tes repères',faits.concat(hb.lines)) + sec('good','Tes points forts',forces) + sec('thief','Tes voleurs de temps',thieves) + sec('tip','2 conseils pour la semaine prochaine',conseils) + `<button class="btn share" id="waBtn">Partager sur WhatsApp</button><button class="btn btn-navy" style="margin-top:10px" data-close>Fermer</button>`);
+  $('waBtn').onclick = () => window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
+}
+
+/* ---------- Divers ---------- */
+let tt; function toast(m){ const t=$('toast'); t.textContent=m; t.classList.remove('hidden'); clearTimeout(tt); tt=setTimeout(()=>t.classList.add('hidden'),2200); }
+$('loginBtn').onclick = login;
+$('startBtn').onclick = showApp;
+$('nameInput').addEventListener('keydown', e => { if (e.key==='Enter') login(); });
+$('logoutBtn').onclick = () => { store.del('bas90.user'); user=null; $('nameInput').value=''; showLogin(); };
+$('saveBtn').onclick = save;
+$('aiBtn').onclick = analyze;
+$('settingsBtn').onclick = settings;
+$('weekBtn').onclick = weekBilan;
+$('restSw').onclick = toggleRest;
+$('days').onclick = e => { const b = e.target.closest('.dy'); if (!b || b.disabled) return; persist(); setDay(+b.dataset.off); };
+$('wkPrev').onclick = () => { persist(); setDay(offset-7); };
+$('wkNext').onclick = () => { persist(); setDay(Math.min(0, offset+7)); };
+
+/* ---------- PWA ---------- */
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(()=>{});
+
+/* ---------- Démarrage ---------- */
+const saved = store.get('bas90.user');
+if (saved) { user = saved; showApp(); } else showLogin();
+})();
+</script>
+</body>
+</html>
